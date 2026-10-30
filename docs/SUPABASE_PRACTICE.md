@@ -64,3 +64,10 @@ ChatGPT 설정에서 Supabase 플러그인과 계정의 OAuth 연결을 확인�
 - [JavaScript insert](https://supabase.com/docs/reference/javascript/insert)
 - [Vite 환경변수](https://vite.dev/guide/env-and-mode)
 - [Supabase MCP 연결](https://supabase.com/docs/guides/ai-tools/mcp)
+
+
+## Vercel 배포 설정
+
+Vercel의 link-on → Settings → Environment Variables에 `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`를 Preview와 Production에 설정합니다. 2026-10-30에 로컬 검증에 사용한 공개용 값으로 설정했습니다. 별도 API_KEY 변수는 필요하지 않습니다. .env.local은 업로드하지 않습니다.
+
+환경변수를 바꾸면 새 배포가 필요합니다. VITE_ 값은 브라우저에 포함되므로 Secret으로 표시해도 브라우저에서 숨겨지지 않습니다. publishable key는 공개용이며 secret/service_role 키는 사용하지 않습니다.
