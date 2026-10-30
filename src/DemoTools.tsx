@@ -14,8 +14,8 @@ export function DemoTools({ state, dispatch, navigate, blocked = false }: { stat
   const execute = (action: Action, message: string) => {
     const next = reducer(state, action); dispatch(action); setFeedback(next.notice || message); return next;
   };
-  return <details className="demo-tools" inert={blocked}><summary>시연 도구 · 고객 앱 외부</summary>
-    <p>가상의 고객·행사·결제로 동작을 확인합니다. 실제 결제와 금융 API 연결은 없습니다.</p>
+  return <details className="demo-tools" inert={blocked}><summary>체험 설정</summary>
+    <p>가상 이용 패턴과 행사 조건을 바꿔 보세요. 결제를 접수한 뒤 전표를 접수하면 혜택 적용 결과를 확인할 수 있어요. 실제 결제는 발생하지 않습니다.</p>
     <div className="demo-grid">
       <section><h3>맞춤 혜택 선정</h3>
         <label>시연 이용 패턴<select value={pattern} onChange={e => setPattern(e.target.value)}><option value="">이용 이력 없음</option>{industries.map(industry => <option key={industry} value={industry}>{industry}</option>)}<option value={industries.join(',')}>전체 업종</option>{state.patterns.length > 1 && state.patterns.length < industries.length && <option value={state.patterns.join(',')}>{state.patterns.join(' / ')}</option>}</select></label>

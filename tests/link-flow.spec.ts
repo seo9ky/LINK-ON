@@ -85,7 +85,7 @@ test('자동 LINK와 직접 LINK가 서로 영향을 주지 않는다', async ({
   await expect(page.getByRole('switch')).toBeChecked();
   await page.getByRole('switch').click(); await page.getByRole('button', { name: '자동 연결 유지하기' }).click();
   await expect(page.getByRole('switch')).toBeChecked();
-  await page.getByRole('switch').click(); await page.getByRole('button', { name: '자동 연결 끄기', exact: true }).click();
+  await page.getByRole('switch').click(); await page.getByRole('dialog').getByRole('button', { name: '자동 연결 끄기', exact: true }).click();
   await expect(page.getByRole('heading', { name: '자동 연결을 껐어요' })).toBeVisible();
   await expect(page.getByRole('button', { name: '스타벅스 혜택 상세' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'SSF SHOP 혜택 상세' })).toBeVisible();
@@ -105,7 +105,7 @@ test('개별 제외 후 재활성화해도 이번 행사 혜택이 복구되지 
   await page.getByRole('dialog').getByRole('button', { name: 'SSF SHOP 혜택 제외' }).click();
   await home(page); await expect(page.getByRole('heading', { name: '지금은 자동으로 연결할 혜택이 없어요' })).toBeVisible();
   await page.getByRole('button', { name: '자동 LINK 관리', exact: true }).click();
-  await page.getByRole('switch').click(); await page.getByRole('button', { name: '자동 연결 끄기', exact: true }).click();
+  await page.getByRole('switch').click(); await page.getByRole('dialog').getByRole('button', { name: '자동 연결 끄기', exact: true }).click();
   await page.getByRole('button', { name: 'LINK ON 다시 켜기', exact: true }).click();
   await expect(page.getByLabel('링크한 혜택 개수')).toHaveText('2개');
   await expect(page.getByRole('button', { name: '공차 혜택 상세' })).toBeVisible();
