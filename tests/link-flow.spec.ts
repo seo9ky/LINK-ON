@@ -123,8 +123,9 @@ test('관심 업종 취소·저장과 다음 행사 선정', async ({ page }) =>
   await page.getByRole('button', { name: '저장하고 혜택 확인하기' }).click();
   await expect(page.getByLabel('링크한 혜택 개수')).toHaveText('2개');
   await page.locator('.demo-tools summary').click();
+  await page.getByRole('tab', { name: '행사 시점', exact: true }).click();
   await page.getByLabel('시연 날짜', { exact: true }).fill('2026-12-01');
-  await page.getByRole('button', { name: '날짜 적용', exact: true }).click();
+  await page.getByRole('button', { name: '날짜 적용하기', exact: true }).click();
   await expect(page.getByLabel('링크한 혜택 개수')).toHaveText('2개');
   await expect(page.getByRole('button', { name: '스타벅스 혜택 상세' })).toContainText('12.31');
   await expect(page.getByRole('button', { name: '공차 혜택 상세' })).toBeVisible();
@@ -134,22 +135,23 @@ test('직접 연결 → 결제 → 해제 → 전표 → 할인 합계, 후속 �
   await ready(page);
   await page.getByRole('button', { name: 'GS25 혜택 링크', exact: true }).click(); await home(page);
   await page.locator('.demo-tools summary').click();
-  await page.getByRole('combobox', { name: '결제 대상 행사', exact: true }).selectOption('gs25-202611');
-  await page.getByRole('button', { name: '시연 결제 접수', exact: true }).click();
+  await page.getByRole('tab', { name: '예외 상황', exact: true }).click();
+  await page.getByRole('combobox', { name: '대상 행사', exact: true }).selectOption('gs25-202611');
+  await page.getByRole('button', { name: '이 조건으로 결제 체험', exact: true }).click();
   await expect(page.getByRole('heading', { name: '결제 내역을 확인 중이에요' })).toBeVisible();
   await home(page); await details(page);
   await page.getByRole('button', { name: '이 혜택 LINK 해제', exact: true }).click();
   await page.getByRole('button', { name: 'LINK 해제', exact: true }).click();
-  await page.getByRole('button', { name: '결제 확인 일괄 완료', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '1,000원 혜택 적용' })).toBeVisible();
+  await page.getByRole('button', { name: '확인 중인 결과 모두 반영', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '1,000원 할인 적용' })).toBeVisible();
   await expect(page.locator('.payment-entry')).toContainText('직접 LINK');
   await home(page); await expect(page.locator('.summary')).toContainText('1,000원');
-  await page.getByRole('button', { name: '시연 결제 접수', exact: true }).click();
-  await page.getByRole('button', { name: '결제 확인 일괄 완료', exact: true }).click();
+  await page.getByRole('button', { name: '이 조건으로 결제 체험', exact: true }).click();
+  await page.getByRole('button', { name: '확인 중인 결과 모두 반영', exact: true }).click();
   await expect(page.locator('.payment-entry')).toContainText('결제 전에 연결된 혜택이 아니에요.');
   await page.reload();
   await page.getByRole('tab', { name: '적용 완료', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '1,000원 혜택 적용' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '1,000원 할인 적용' })).toBeVisible();
 });
 
 test('연결하지 않은 완료 주소는 실제 상태로 안내', async ({ page }) => {

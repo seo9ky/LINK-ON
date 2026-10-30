@@ -108,3 +108,7 @@ git status
 결제 행사와 금액을 고른 뒤 **시연 결제 접수 → 확인 중 결제 전표 접수**를 진행하면 결과가 표시됩니다. **처음부터 다시 보기**는 현재 브라우저의 시연 상태만 초기화하며 Git 이력과는 관계없습니다.
 
 정책은 [구현 기준](IMPLEMENTATION_GUIDE.md), 작업 범위는 [작업 규칙](../AGENTS.md), 검사 결과는 [배포 점검 기록](VALIDATION_RELEASE.md)을 참고하세요.
+
+## QR PNG 다시 만들기
+
+로고와 주소를 유지한 QR은 `scripts/create-qr.py`로 생성합니다. Python에 `Pillow`와 `qrcode`를 설치한 뒤 `python scripts/create-qr.py`를 실행하면 `docs/assets/LINK-ON-QR.png`가 갱신됩니다. README는 이 파일을 표시합니다. 인쇄하거나 배포하기 전 축소본에서도 주소가 인식되는지 확인하세요.

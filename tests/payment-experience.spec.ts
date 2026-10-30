@@ -11,11 +11,11 @@ test('QR 첫 방문에서 화면 안의 안내만으로 자동 연결과 할인 
   await page.getByRole('button', { name: '저장하고 혜택 확인하기' }).click();
   await page.getByRole('button', { name: '결제 체험하기', exact: true }).click();
   await expect(page.getByLabel('결제할 가맹점')).toHaveValue('starbucks-202611');
-  await page.getByRole('button', { name: '시연 결제하기', exact: true }).click();
+  await page.getByRole('button', { name: '결제 체험하기', exact: true }).click();
   await expect(page.getByRole('tab', { name: '확인 중', exact: true })).toHaveAttribute('aria-selected', 'true');
   await page.reload();
-  await page.getByRole('button', { name: '결제 확인 완료하기', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '1,000원 혜택 적용' })).toBeVisible();
+  await page.getByRole('button', { name: '할인 결과 확인하기', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '1,000원 할인 적용' })).toBeVisible();
   await page.getByRole('button', { name: 'LINK 메인으로', exact: true }).click();
   await expect(page.locator('.summary')).toContainText('1,000원');
   await expect(page.locator('.demo-tools')).not.toHaveAttribute('open');
@@ -27,14 +27,14 @@ test('결제 체험은 최소 금액 미충족을 안내하고 같은 혜택을 
   await page.getByRole('button', { name: '결제 체험하기', exact: true }).click();
   await expect(page.getByLabel('결제할 가맹점')).toHaveValue('gs25-202611');
   await page.getByLabel('결제금액 (원)', { exact: true }).first().fill('1000');
-  await page.getByRole('button', { name: '시연 결제하기', exact: true }).click();
-  await page.getByRole('button', { name: '결제 확인 완료하기', exact: true }).click();
+  await page.getByRole('button', { name: '결제 체험하기', exact: true }).click();
+  await page.getByRole('button', { name: '할인 결과 확인하기', exact: true }).click();
   await expect(page.getByText('최소 결제금액을 충족하지 않았어요.')).toBeVisible();
   await page.getByRole('button', { name: '행사 혜택 상세 ›' }).click();
   await page.getByRole('button', { name: '이 혜택으로 결제 체험' }).click();
-  await page.getByRole('button', { name: '시연 결제하기', exact: true }).click();
-  await page.getByRole('button', { name: '결제 확인 완료하기', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '1,000원 혜택 적용' })).toBeVisible();
+  await page.getByRole('button', { name: '결제 체험하기', exact: true }).click();
+  await page.getByRole('button', { name: '할인 결과 확인하기', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '1,000원 할인 적용' })).toBeVisible();
 });
 
 test('PC 확대 전후 휴대폰 비율과 첫 화면 시작 버튼을 유지한다', async ({ page }) => {
