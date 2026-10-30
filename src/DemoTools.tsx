@@ -15,7 +15,7 @@ export function DemoTools({ state, dispatch, navigate, blocked = false }: { stat
     const next = reducer(state, action); dispatch(action); setFeedback(next.notice || message); return next;
   };
   return <details className="demo-tools" inert={blocked}><summary>체험 설정</summary>
-    <p>가상 이용 패턴과 행사 조건을 바꿔 보세요. 결제를 접수한 뒤 전표를 접수하면 혜택 적용 결과를 확인할 수 있어요. 실제 결제는 발생하지 않습니다.</p>
+    <p>가상 이용 패턴과 행사 조건을 바꿔 보세요. 결제 체험과 결과 확인은 폰 화면에서도 할 수 있어요. 실제 결제는 발생하지 않습니다.</p>
     <div className="demo-grid">
       <section><h3>맞춤 혜택 선정</h3>
         <label>시연 이용 패턴<select value={pattern} onChange={e => setPattern(e.target.value)}><option value="">이용 이력 없음</option>{industries.map(industry => <option key={industry} value={industry}>{industry}</option>)}<option value={industries.join(',')}>전체 업종</option>{state.patterns.length > 1 && state.patterns.length < industries.length && <option value={state.patterns.join(',')}>{state.patterns.join(' / ')}</option>}</select></label>
@@ -31,7 +31,7 @@ export function DemoTools({ state, dispatch, navigate, blocked = false }: { stat
         <label>결제금액 (원)<input type="number" min="1" max="100000000" step="1" value={amount} onInput={e => setAmount(e.currentTarget.value)} onChange={e => setAmount(e.target.value)} /></label>
         <label className="demo-check"><input type="checkbox" checked={other} onChange={e => setOther(e.target.checked)} />다른 할인 적용 (시연 중복 조건)</label>
         <button onClick={() => { const next = execute({ type: 'PAY', id, amount: Number(amount), otherDiscount: other }, '결제를 접수했어요. 전표 접수 후 적용 여부를 확인해 보세요.'); if (next.payments.length > state.payments.length) navigate('/results/pending'); }}>시연 결제 접수</button>
-        <button disabled={!state.payments.some(p => p.status === 'pending')} onClick={() => { const pending = state.payments.filter(p => p.status === 'pending'); pending.forEach(p => dispatch({ type: 'SETTLE', paymentId: p.id })); setFeedback('결제 당시 조건으로 전표 처리를 완료했어요.'); navigate(pending.at(-1)?.eligibleDiscount ? '/results/done' : '/results/failed'); }}>확인 중 결제 전표 접수</button>
+        <button disabled={!state.payments.some(p => p.status === 'pending')} onClick={() => { const pending = state.payments.filter(p => p.status === 'pending'); pending.forEach(p => dispatch({ type: 'SETTLE', paymentId: p.id })); setFeedback('결제 당시 조건으로 전표 처리를 완료했어요.'); navigate(pending.at(-1)?.eligibleDiscount ? '/results/done' : '/results/failed'); }}>결제 확인 일괄 완료</button>
         <label>선택한 행사 연결 상태<select aria-label="행사 예외 상황" value={state.availability[id] || 'available'} onChange={e => execute({ type: 'AVAILABILITY', id, value: e.target.value as Availability }, '예외 조건을 설정했어요. 이미 연결된 혜택에는 소급 적용하지 않아요.')}><option value="available">연결 가능</option><option value="soldout">예산 소진</option><option value="error">연결 오류</option></select></label>
       </section>
     </div><p role="status" aria-live="polite">{feedback}</p>
