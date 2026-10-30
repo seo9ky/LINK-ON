@@ -36,9 +36,8 @@ test('날짜를 변경하면 새 행사를 보여주고 기존 결제는 보존�
   await ready(page); await enable(page);
   await page.getByRole('button', { name: '결제 체험하기', exact: true }).click();
   await page.getByRole('button', { name: /원으로 결제 체험/, exact: true }).click();
-  await page.getByRole('tab', { name: '행사 시점', exact: true }).click();
-  await page.getByLabel('시연 날짜', { exact: true }).fill('2026-12-01');
-  await page.getByRole('button', { name: '날짜 적용하기', exact: true }).click();
+  await page.getByRole('tab', { name: '다음 달 체험하기', exact: true }).click();
+  await page.getByRole('button', { name: '다음 달로 이동', exact: true }).click();
   await page.getByRole('button', { name: '할인 결과 확인하기', exact: true }).click();
   await expect(page.getByRole('heading', { name: '1,000원 할인 적용' })).toBeVisible();
   await page.getByRole('button', { name: 'LINK 메인으로', exact: true }).click();
@@ -48,15 +47,15 @@ test('날짜를 변경하면 새 행사를 보여주고 기존 결제는 보존�
 test('시연 설정은 키보드로 항목을 이동하고 모바일에서도 입력 상태를 보존한다', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await ready(page);
-  await page.getByLabel('자동 연결 한도', { exact: true }).fill('4');
+  await page.getByLabel('자동으로 챙길 수 있는 혜택 수', { exact: true }).fill('4');
   await page.getByRole('tab', { name: '맞춤 혜택 조건', exact: true }).focus();
   await page.keyboard.press('ArrowRight');
-  await expect(page.getByRole('tab', { name: '행사 시점', exact: true })).toBeFocused();
-  await expect(page.getByLabel('시연 날짜', { exact: true })).toBeVisible();
+  await expect(page.getByRole('tab', { name: '다음 달 체험하기', exact: true })).toBeFocused();
+  await expect(page.getByRole('button', { name: '다음 달로 이동' })).toBeVisible();
   await page.keyboard.press('ArrowRight');
   await expect(page.getByRole('tab', { name: '맞춤 혜택 조건', exact: true })).toBeFocused();
   await page.keyboard.press('Home');
-  await expect(page.getByLabel('자동 연결 한도', { exact: true })).toHaveValue('4');
+  await expect(page.getByLabel('자동으로 챙길 수 있는 혜택 수', { exact: true })).toHaveValue('4');
   await expect(page.getByRole('tabpanel')).toHaveCount(1);
   const overflow = await page.locator('.demo-tools').evaluate(el => el.scrollWidth > el.clientWidth + 1);
   expect(overflow).toBe(false);
