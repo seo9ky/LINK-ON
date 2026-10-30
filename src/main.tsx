@@ -6,24 +6,14 @@ import { SelectField } from './FormControls';
 import { DemoTools } from './DemoTools';
 import { InquiryDialog } from './InquiryDialog';
 import { PlanViewer } from './PlanViewer';
+import { ServiceOverview } from './ServiceOverview';
+import { LinkLogo } from './LinkLogo';
 import { initializeNavigation, useNavigation } from './navigation';
 import './styles.css';
 
 const asset = (name: string) => `/assets/${name}`;
 function Icon({ name, size = 24 }: { name: string; size?: number }) {
   return <span className="asset-icon" style={{ width: size, height: size }} aria-hidden="true"><img src={asset(name)} alt="" /></span>;
-}
-function LinkLogo({ size = 170 }: { size?: 128 | 170 | 180 | 190 }) {
-  const ratio = size / 128;
-  const base: CSSProperties = { width: size, height: 29.538 * ratio };
-  const pos = (left: number, top: number, width: number, height: number): CSSProperties => ({ left: left * ratio, top: top * ratio, width: width * ratio, height: height * ratio });
-  return <div className="link-on-logo" style={base} role="img" aria-label="LINK ON">
-    <img src={asset(`logo-${size}-link.svg`)} style={pos(0, 1.56, 82.963, 26.413)} alt="" />
-    <span className="logo-track" style={pos(87.37, 4.61, 40.635, 20.317)} />
-    <span className="logo-on" style={{ ...pos(92.14, 8.98, 14.561, 11.578), fontSize: 8.8 * ratio, lineHeight: `${11.513 * ratio}px` }}>ON</span>
-    <img src={asset(`logo-${size}-knob.svg`)} style={pos(110.05, 6.98, 15.577, 15.577)} alt="" />
-    <img src={asset(`logo-${size}-dot.svg`)} style={pos(116.49, 13.41, 2.709, 2.709)} alt="" />
-  </div>;
 }
 function StatusBarIPhone() {
   return <div className="status-bar" aria-hidden="true"><span className="status-time">9:41</span><span className="island" /><div className="status-levels"><span className="cellular"><i /><i /><i /><i /></span><img src={asset('wifi.svg')} alt="" /><img src={asset('battery.svg')} alt="" /></div></div>;
@@ -97,6 +87,8 @@ function App() {
   const [consent, setConsent] = useState(false);
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [planOpen, setPlanOpen] = useState(false);
+  const [serviceOpen, setServiceOpen] = useState(false);
+  const serviceButtonRef = useRef<HTMLButtonElement>(null);
   const planButtonRef = useRef<HTMLButtonElement>(null);
   const [draft, setDraft] = useState(state.interests);
   const [industryFilter, setIndustryFilter] = useState('전체');
@@ -240,8 +232,8 @@ function App() {
     footer = <Button onClick={home}>LINK 메인으로</Button>;
   }
   const modalName = modalOffer ? merchants[modalOffer.merchant].name : '';
-  return <><div className="site-shell" inert={inquiryOpen || planOpen}>
-    <header className="site-header" inert={!!modal}><a href="#/" onClick={event => { event.preventDefault(); home(); }} aria-label="LINK ON 홈"><LinkLogo size={128} /></a><nav aria-label="사이트 메뉴"><button onClick={() => go('/help')}>서비스 소개</button><button ref={planButtonRef} onClick={() => setPlanOpen(true)} aria-haspopup="dialog">기획서</button></nav></header>
+  return <><div className="site-shell" inert={inquiryOpen || planOpen || serviceOpen}>
+    <header className="site-header" inert={!!modal}><a href="#/" onClick={event => { event.preventDefault(); home(); }} aria-label="LINK ON 홈"><LinkLogo size={128} /></a><nav aria-label="사이트 메뉴"><button ref={serviceButtonRef} onClick={() => setServiceOpen(true)} aria-haspopup="dialog">서비스 소개</button><button ref={planButtonRef} onClick={() => setPlanOpen(true)} aria-haspopup="dialog">기획서</button></nav></header>
     <div className="preview"><div className="showcase"><section ref={brandRef} className="brand-signature" aria-label="LINK ON 소개"><LinkLogo size={190} /><p>나에게 맞는 혜택, 알아서 LINK!</p></section><div className="phone-column"><div className="preview-stage" style={{ zoom: previewScale } as CSSProperties}><div className="phone" data-screen={path}>
     <div className="screen-body" inert={!!modal}><StatusBarIPhone /><nav className="navigation" aria-label="화면 이동">{!isMain ? <button className="nav-icon" onClick={back} aria-label="뒤로"><Icon name="back.svg" /></button> : <span className="nav-placeholder" />}<h1 tabIndex={-1}>{title}</h1>{!isMain ? <button className="nav-icon" onClick={home} aria-label="LINK 메인"><Icon name="close.svg" size={20} /></button> : <span className="nav-placeholder" />}</nav><main className={`content ${contentClass}`} ref={scrollRef}>{state.notice && <div className="inline-notice" role="status">{state.notice}</div>}{content}</main>{footer && <footer className="footer">{footer}</footer>}<HomeIndicator /></div>
     {modal && <ConfirmSheet returnFocus={modalOrigin.current} title={modal === 'unlink' ? '직접 LINK를 해제할까요?' : modal === 'off' ? 'LINK ON을 끌까요?' : '이 혜택을 제외할까요?'} confirm={modal === 'unlink' ? 'LINK 해제' : modal === 'off' ? '자동 연결 끄기' : `${modalName} 혜택 제외`} cancel={modal === 'unlink' ? '연결 유지하기' : modal === 'off' ? '자동 연결 유지하기' : '혜택 유지하기'} onClose={historyBack} onConfirm={() => {
@@ -250,8 +242,8 @@ function App() {
       else if (modalOffer) { dispatch({ type: 'EXCLUDE', id: modalOffer.id }); go(`/excluded/${modalOffer.id}`, true); }
     }}>{modal === 'unlink' ? <>{modalName} 혜택의 연결이 해제돼요.<br />다른 혜택과 LINK ON 설정은 유지돼요.</> : modal === 'off' ? <>새 혜택의 자동 연결이 중단돼요.<br />이미 연결된 혜택은 만료일까지 유지됩니다.</> : <>{modalName} 혜택의 연결이 취소돼요.<br />이번 행사 혜택은 다시 자동 연결하지 않아요.</>}</ConfirmSheet>}
   </div></div></div></div><aside className="experience-tools" aria-label="체험 옵션"><DemoTools blocked={!!modal} state={state} dispatch={dispatch} navigate={route => go(route)} /></aside></div>
-    <footer className="site-footer" inert={!!modal}><button className="contact-button" onClick={() => setInquiryOpen(true)}><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6 3V6a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>문의하기</button><div className="service-brands"><img src="/assets/samsungcard.png" alt="삼성카드" /><img src="/assets/monimo.png" alt="모니모" /></div></footer>
-  </div><InquiryDialog open={inquiryOpen} onClose={() => setInquiryOpen(false)} />{planOpen && <PlanViewer onClose={() => { setPlanOpen(false); requestAnimationFrame(() => planButtonRef.current?.focus({ preventScroll: true })); }} />}</>;
+    <footer className="site-footer" inert={!!modal}><button className="contact-button" onClick={() => setInquiryOpen(true)}><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6 3V6a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>문의하기</button><div className="service-brands"><a href="https://www.samsungcard.com/personal/main/UHPPCO0101M0.jsp" target="_blank" rel="noopener noreferrer" aria-label="삼성카드 공식 사이트 (새 탭)"><img src="/assets/samsungcard.png" alt="삼성카드" /></a><a href="https://www.monimo.com/monimo/homepage/main/PGIFPCCHomepageMainIndex001" target="_blank" rel="noopener noreferrer" aria-label="모니모 공식 사이트 (새 탭)"><img src="/assets/monimo.png" alt="모니모" /></a></div></footer>
+  </div><InquiryDialog open={inquiryOpen} onClose={() => setInquiryOpen(false)} />{serviceOpen && <ServiceOverview onClose={() => { setServiceOpen(false); requestAnimationFrame(() => serviceButtonRef.current?.focus({ preventScroll: true })); }} />}{planOpen && <PlanViewer onClose={() => { setPlanOpen(false); requestAnimationFrame(() => planButtonRef.current?.focus({ preventScroll: true })); }} />}</>;
 
 }
 
