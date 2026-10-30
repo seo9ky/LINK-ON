@@ -4,9 +4,10 @@ import { useState, useEffect, type Dispatch } from 'react';
 import { industries, campaigns, merchants, campaign, availableCampaigns, reducer, type Action, type Availability, type LinkState } from './model';
 
 type SettingSection = 'matching' | 'date' | 'exceptions' | 'database';
+const practiceAuthReturn = new URLSearchParams(window.location.search).has('code') || new URLSearchParams(window.location.search).has('error');
 export function DemoTools({ state, dispatch, navigate, blocked = false }: { state: LinkState; dispatch: Dispatch<Action>; navigate: (route: string) => void; blocked?: boolean }) {
-  const [expanded, setExpanded] = useState(() => window.matchMedia('(min-width: 960px) and (orientation: landscape)').matches);
-  const [section, setSection] = useState<SettingSection>('matching');
+  const [expanded, setExpanded] = useState(() => practiceAuthReturn || window.matchMedia('(min-width: 960px) and (orientation: landscape)').matches);
+  const [section, setSection] = useState<SettingSection>(practiceAuthReturn ? 'database' : 'matching');
   const [date, setDate] = useState(state.date);
   const [limit, setLimit] = useState(String(state.limit));
   const [pattern, setPattern] = useState(state.patterns.join(','));
@@ -56,7 +57,7 @@ export function DemoTools({ state, dispatch, navigate, blocked = false }: { stat
             <button className="settings-secondary" disabled={!state.payments.some(p => p.status === 'pending')} onClick={() => { const pending = state.payments.filter(p => p.status === 'pending'); pending.forEach(p => dispatch({ type: 'SETTLE', paymentId: p.id })); setFeedback('확인 중인 결제의 할인 결과를 반영했어요.'); navigate(pending.at(-1)?.eligibleDiscount ? '/results/done' : '/results/failed'); }}>확인 중인 결과 모두 반영</button></div>
         </div>
       </section>
-      <section className="settings-panel" id="setting-panel-database" role="tabpanel" aria-labelledby="setting-tab-database" hidden={section !== 'database'}><SupabasePractice /></section>
+      <section className="settings-panel" id="setting-panel-database" role="tabpanel" aria-labelledby="setting-tab-database" hidden={section !== 'database'}><SupabasePractice active={section === 'database'} /></section>
       {feedback && <p className="settings-feedback" role="status" aria-live="polite">{feedback}</p>}
     </div>
   </details>;

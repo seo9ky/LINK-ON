@@ -11,7 +11,8 @@ assert(key?.startsWith('sb_publishable_'), 'A publishable key is required');
 assert(new URL(url).protocol === 'https:');
 const headers = { apikey: key, 'Content-Type': 'application/json', Prefer: 'return=minimal' };
 const cases = [
-  { name: 'Anonymous SELECT denied', method: 'GET', query: '?select=id&limit=1', expected: [401, 403] },
+  { name: 'Anonymous SELECT denied', method: 'GET', query: '?select=id,input,created_at&limit=1', expected: [401, 403] },
+  { name: 'Anonymous INSERT denied', method: 'POST', query: '', body: { input: 'anonymous-must-not-save' }, expected: [401, 403] },
   { name: 'Anonymous UPDATE denied', method: 'PATCH', query: '?id=eq.-1', body: { input: 'permission-test' }, expected: [401, 403] },
   { name: 'Anonymous DELETE denied', method: 'DELETE', query: '?id=eq.-1', expected: [401, 403] },
   { name: 'Blank INSERT rejected', method: 'POST', query: '', body: { input: '   ' }, expected: [400, 401, 403] },
