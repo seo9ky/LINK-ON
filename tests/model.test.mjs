@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { initialState, reducer, activeLinks, connection, totalDiscount, emptyReason, restoreState, campaigns, industries, merchants, availableCampaigns } from '../src/model.ts';
+import { initialState, reducer, activeLinks, connection, totalDiscount, emptyReason, restoreState, campaigns, industries, merchants, availableCampaigns, selectionOutcome } from '../src/model.ts';
 const fresh = () => structuredClone(initialState);
 const step = (s, type, props = {}) => reducer(s, { type, ...props });
 const on = (values = ['외식 · 간식', '패션 · 스타일'], config = {}) => step({ ...fresh(), ...config }, 'SAVE_INTERESTS', { values, activate: true });
@@ -201,5 +201,47 @@ test('18개 자동 혜택 제외는 OFF·ON 후 유지되고 직접 재연결은
     s = step(s, 'SELECT');
     assert.equal(activeLinks(s).length, 0);
     assert.ok(s.excluded.includes(campaign.id));
+  }
+});
+
+
+test('조건 적용은 입력값으로 한 번에 선정하고 기존 직접 연결과 제외를 보존한다', () => {
+  let s = on();
+  s = step(s, 'LINK_MANUAL', { id: 'gs25-202611' });
+  s = step(s, 'EXCLUDE', { id: 'ssf-202611' });
+  const next = step(s, 'APPLY_CONDITIONS', { limit: 5, patterns: [industries[0]] });
+  assert.equal(next.limit, 5);
+  assert.equal(activeLinks(next).filter(l => l.mode === 'auto').length, 5);
+  assert.equal(connection(next, 'gs25-202611').mode, 'manual');
+  assert.equal(connection(next, 'ssf-202611'), undefined);
+  assert.equal(selectionOutcome(s, next).added.length, 4);
+  const lower = step(next, 'APPLY_CONDITIONS', { limit: 1, patterns: [] });
+  assert.equal(activeLinks(lower).length, 6);
+  assert.match(selectionOutcome(next, lower).message, / 새 한도보다 많아/);
+});
+
+test('미동의·OFF·후보 없음에서는 조건만 저장하고 결과를 정확하게 설명한다', () => {
+  const action = { type: 'APPLY_CONDITIONS', limit: 5, patterns: [] };
+  const unconsented = reducer(fresh(), action);
+  assert.equal(unconsented.optedIn, false);
+  assert.equal(activeLinks(unconsented).length, 0);
+  assert.match(selectionOutcome(fresh(), unconsented).message, /동의/);
+  const off = step(on(), 'DISABLE');
+  const after = reducer(off, action);
+  assert.equal(activeLinks(after).length, 2);
+  assert.match(selectionOutcome(off, after).message, /꺼져/);
+  const none = on([], { patterns: [] });
+  const noCandidate = reducer(none, action);
+  assert.equal(activeLinks(noCandidate).length, 0);
+  assert.match(selectionOutcome(none, noCandidate).message, /맞는 혜택이 없어요/);
+});
+
+test('날짜가 같거나 행사 범위를 벗어나면 추가 선정과 기록 변경을 하지 않는다', () => {
+  const s = step(on(), 'CONFIGURE', { limit: 5, patterns: [industries[0]] });
+  assert.equal(step(s, 'ADVANCE_DATE', { date: s.date }), s);
+  for (const date of ['2027-01-01', '2026-11-02', '2026-11-31']) {
+    const next = step(s, 'ADVANCE_DATE', { date });
+    assert.equal(next.date, s.date);
+    assert.deepEqual(next.connections, s.connections);
   }
 });

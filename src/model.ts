@@ -88,11 +88,25 @@ function selectBenefits(s: LinkState): LinkState {
   const links = selected.map(c => ({ campaignId: c.id, mode: 'auto' as const, linkedOn: s.date, reason: selectionReason(s, c) }));
   return { ...s, connections: [...s.connections, ...links] };
 }
+export function selectionOutcome(before: LinkState, after: LinkState) {
+  const previous = new Set(activeLinks(before).map(l => l.campaignId));
+  const auto = activeLinks(after).filter(l => l.mode === 'auto');
+  const added = auto.filter(l => !previous.has(l.campaignId)).map(l => merchants[campaign(l.campaignId)!.merchant].name);
+  let message: string;
+  if (!after.optedIn) message = '조건을 저장했어요. 앱에서 동의하고 LINK ON을 시작하면 자동 연결해요.';
+  else if (!after.enabled) message = '조건을 저장했어요. LINK ON이 꺼져 있어 추가 연결하지 않았어요.';
+  else if (added.length) message = `${added.length}개 혜택을 추가 연결했어요.`;
+  else if (auto.length > after.limit) message = '기존 혜택은 유지돼요. 새 한도보다 많아 추가 연결하지 않았어요.';
+  else if (after.limit === 0) message = '자동 연결 한도가 0개라 추가 연결하지 않았어요. 직접 LINK는 가능해요.';
+  else if (auto.length >= after.limit) message = '자동 연결 한도에 도달해 추가 연결하지 않았어요.';
+  else message = emptyReason(after);
+  return { added, message };
+}
 export type Action =
   | { type: 'SAVE_INTERESTS'; values: string[]; activate: boolean }
   | { type: 'LINK_MANUAL' | 'UNLINK_MANUAL' | 'EXCLUDE'; id: string }
   | { type: 'DISABLE' | 'ENABLE' | 'SELECT' | 'RESET' }
-  | { type: 'CONFIGURE'; limit: number; patterns: string[] }
+  | { type: 'CONFIGURE' | 'APPLY_CONDITIONS'; limit: number; patterns: string[] }
   | { type: 'ADVANCE_DATE'; date: string }
   | { type: 'AVAILABILITY'; id: string; value: Availability }
   | { type: 'PAY'; id: string; amount: number; otherDiscount: boolean }
@@ -106,9 +120,15 @@ export function reducer(state: LinkState, action: Action): LinkState {
       return { ...s, notice: '관심 업종을 저장했어요. 다음 혜택 선정부터 반영해요.' };
     }
     case 'SELECT': return selectBenefits(s);
+    case 'APPLY_CONDITIONS': {
+      if (!Number.isInteger(action.limit) || action.limit < 0 || action.limit > 20) return state;
+      return selectBenefits({ ...s, limit: action.limit, patterns: action.patterns.filter(v => industries.includes(v)) });
+    }
     case 'CONFIGURE': return Number.isInteger(action.limit) && action.limit >= 0 && action.limit <= 20 ? { ...s, limit: action.limit, patterns: action.patterns.filter(v => industries.includes(v)), notice: '시연 조건을 저장했어요. 기존 연결은 유지하고 다음 선정부터 적용해요.' } : state;
     case 'AVAILABILITY': return campaign(action.id) ? { ...s, availability: { ...s.availability, [action.id]: action.value } } : state;
     case 'ADVANCE_DATE': {
+      if (action.date === s.date) return state;
+      if (action.date < initialState.date || action.date > '2026-12-31') return { ...s, notice: '시연 날짜는 2026년 11월 3일부터 12월 31일까지 선택해 주세요.' };
       if (!/^\d{4}-\d{2}-\d{2}$/.test(action.date) || !Number.isFinite(Date.parse(action.date)) || new Date(action.date).toISOString().slice(0, 10) !== action.date || action.date < s.date) return { ...s, notice: '시연 날짜는 현재 날짜 이후로만 바꿀 수 있어요.' };
       s.date = action.date;
       s.connections = s.connections.map(l => !l.closedOn && campaign(l.campaignId)!.end < s.date ? { ...l, closedOn: s.date, closedReason: 'expired' } : l);

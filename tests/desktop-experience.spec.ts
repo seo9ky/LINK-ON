@@ -17,8 +17,8 @@ test('노트북에서 폰과 설정을 나란히 보여주고 선택 컨트롤�
   expect(phone!.y + phone!.height).toBeLessThanOrEqual(720);
   expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(720);
   expect(side!.x).toBeGreaterThan(phone!.x + phone!.width);
-  const pattern = page.getByRole('combobox', { name: '이용 패턴', exact: true });
-  const arrow = page.locator('.settings-fields label').filter({ hasText: '이용 패턴' }).locator('.select-indicator');
+  const pattern = page.getByRole('combobox', { name: '자주 이용하는 업종', exact: true });
+  const arrow = page.locator('.settings-fields label').filter({ hasText: '자주 이용하는 업종' }).locator('.select-indicator');
   const before = await arrow.evaluate(el => getComputedStyle(el).backgroundColor);
   const field = await pattern.boundingBox();
   await pattern.hover({ position: { x: field!.width - 26, y: field!.height / 2 } });
