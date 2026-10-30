@@ -64,7 +64,7 @@ test('시연 설정은 키보드로 항목을 이동하고 모바일에서도 �
   await expect(page.getByLabel('시연 날짜', { exact: true })).toBeVisible();
   await page.keyboard.press('End');
   await expect(page.getByRole('tab', { name: '입력값 저장', exact: true })).toBeFocused();
-  await expect(page.getByLabel('저장할 내용', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('이메일', { exact: true })).toBeVisible();
   await page.keyboard.press('ArrowLeft');
   await expect(page.getByRole('tab', { name: '예외 상황', exact: true })).toBeFocused();
   await expect(page.getByRole('combobox', { name: '대상 행사', exact: true })).toBeVisible();
