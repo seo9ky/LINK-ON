@@ -179,6 +179,7 @@ test('화면별 이미지 로드와 모바일 가로 넘침 검사', async ({ pa
     for (const route of ['/', '/consent', '/interests', '/benefit/gs25', '/benefit/starbucks', '/benefit/ssf', '/linked/gs25-202611', '/manage', '/excluded/starbucks', '/manual', '/help', '/results/done', '/results/pending', '/results/failed']) {
       await page.goto(`/#${route}`); await page.evaluate(() => document.fonts.ready);
       await expect(page.locator('h1')).toBeVisible();
+      await page.waitForFunction(() => [...document.images].every(image => image.complete));
       const failures = await page.evaluate(() => ({
         brokenImages: [...document.images].filter(i => !i.complete || i.naturalWidth === 0).map(i => i.src),
         overflow: document.documentElement.scrollWidth > window.innerWidth,
