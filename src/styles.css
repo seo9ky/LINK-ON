@@ -44,7 +44,7 @@
 .text-action{min-height:44px;display:inline-flex;align-items:center}
 .section-heading{height:auto;min-height:44px}
 .service-info{box-shadow:none;background:var(--subtle)}
-h1:focus:not(:focus-visible){outline:none}
+.navigation h1:focus{outline:none}
 @media(max-width:560px){.demo-disclosure{padding-top:12px}.preview-tools{padding-top:8px}}
 
 /* Entry and payment experience use the same palette and phone geometry. */
