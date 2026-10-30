@@ -31,7 +31,7 @@ on_font=Path('C:/Windows/Fonts/arialbd.ttf')
 if not on_font.exists(): on_font=ROOT/'public/fonts/NotoSansKR-VF.ttf'
 font=ImageFont.truetype(str(on_font),round(8.8*scale*S))
 d.text(((ox+99.42*scale)*S,(oy+14.77*scale)*S),'ON',font=font,fill='#003cdc',anchor='mm')
-font=ImageFont.truetype(str(ROOT/'public/fonts/NotoSansKR-VF.ttf'),44*S)
+font=ImageFont.truetype(str(ROOT/'public/fonts/NotoSansKR-VF.ttf'),52*S)
 font.set_variation_by_axes([500])
 d.text((600*S,330*S),'나에게 맞는 혜택, 알아서 LINK!',font=font,fill='#111315',anchor='mm')
 qr=qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H,border=4)
