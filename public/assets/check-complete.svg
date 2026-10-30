@@ -1,0 +1,7 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Icon/check">
+<path id="Check / cyan" opacity="0.5" d="M0.93934 5.06066L5.87868 10L8 7.87868L3.06066 2.93934L0.93934 5.06066Z" fill="#00AEF3"/>
+<path id="Check / magenta" opacity="0.45" d="M8 7.87868L10.1213 10L15.0607 5.06066L12.9393 2.93934L8 7.87868Z" fill="#EF028D"/>
+<path id="Check / cyan + magenta blend" d="M8 7.87868L10.1213 10L8 12.1213L5.87868 10L8 7.87868Z" fill="#BCB2E2"/>
+</g>
+</svg>

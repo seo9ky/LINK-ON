@@ -1,0 +1,29 @@
+{
+  "exported_date": "2026-10-30",
+  "timezone": "Asia/Seoul",
+  "onepager": {
+    "original_url": "https://docs.google.com/document/d/1cuuI5a7Pv5jBM8zbvkqFx2W1rbo4tl5PyfeaNlTwUOk/edit",
+    "file": "LINK_ON_1Pager.pdf",
+    "format": "Native Google Docs PDF",
+    "pages": 2,
+    "sha256": "4122876ce1a37be05deba1668aa1de3609bfdb1b78f548f9b554c1a2fcf5356a"
+  },
+  "detailed_plan": {
+    "original_url": "https://www.figma.com/design/PN09TFXHRZ4LUI6HfpENqV/?node-id=122-575",
+    "file": "LINK_ON_Detailed_Plan.pdf",
+    "format": "Image PDF, 1920x1080 source pixels per slide",
+    "pages": 8,
+    "frame_ids": [
+      "121:589",
+      "121:612",
+      "121:696",
+      "121:768",
+      "121:848",
+      "121:936",
+      "121:1033",
+      "121:1123"
+    ],
+    "sha256": "2316eb15c51b76929e11baa5414906fca0caa4c0e22983f8db4f8a3faa6ea5b1"
+  },
+  "supporting_planning_draft_url": "https://docs.google.com/document/d/146VgZ2VkD6RKw8OdTew0vLboohJy1YTc4ofuVaW--2w/edit"
+}

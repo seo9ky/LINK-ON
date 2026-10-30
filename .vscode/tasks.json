@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "LINK ON: 패키지 설치", "type": "shell", "command": "npm ci",
+      "windows": { "command": "cmd", "args": ["/d", "/c", "scripts\\package.cmd ci"] },
+      "problemMatcher": [], "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "LINK ON: 실행", "type": "shell", "command": "npm run dev -- --open",
+      "windows": { "command": "cmd", "args": ["/d", "/c", "scripts\\package.cmd run dev -- --open"] },
+      "isBackground": true, "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "LINK ON: 빌드 검사", "type": "shell", "command": "npm run build",
+      "windows": { "command": "cmd", "args": ["/d", "/c", "scripts\\package.cmd run build"] },
+      "group": { "kind": "build", "isDefault": true }, "problemMatcher": [],
+      "options": { "cwd": "${workspaceFolder}" }
+    }
+  ]
+}

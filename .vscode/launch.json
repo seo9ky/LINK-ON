@@ -1,0 +1,9 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "LINK ON: 실행 중인 화면 디버깅", "type": "msedge", "request": "launch",
+      "url": "http://127.0.0.1:5173/", "webRoot": "${workspaceFolder}"
+    }
+  ]
+}
