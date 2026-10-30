@@ -12,7 +12,6 @@ test('로그인 전에는 문장을 요청하지 않고 이메일 링크를 중�
     await route.fulfill({ json: {} });
   });
   await page.goto('/');
-  await page.locator('.demo-tools > summary').click();
   await page.getByRole('tab', { name: '입력값 저장', exact: true }).click();
   await page.getByLabel('이메일', { exact: true }).fill('practice@example.test');
   await page.getByRole('button', { name: '이메일 로그인 링크 받기' }).click();
@@ -26,7 +25,6 @@ test('로그인 전에는 문장을 요청하지 않고 이메일 링크를 중�
 test('메일 발송 오류는 주소를 유지하고 로그인 성공으로 표시하지 않는다', async ({ page }) => {
   await page.route('**/auth/v1/otp*', route => route.fulfill({ status: 429, json: { code: 'over_email_send_rate_limit', msg: 'rate limit' } }));
   await page.goto('/');
-  await page.locator('.demo-tools > summary').click();
   await page.getByRole('tab', { name: '입력값 저장', exact: true }).click();
   await page.getByLabel('이메일', { exact: true }).fill('practice@example.test');
   await page.getByRole('button', { name: '이메일 로그인 링크 받기' }).click();
