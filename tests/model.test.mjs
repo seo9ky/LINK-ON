@@ -180,3 +180,26 @@ test('옛 관심 업종은 새 분류로 이전하고 기존 연결·결제 이�
   assert.deepEqual(migrated.connections, before.connections);
   assert.deepEqual(migrated.payments, before.payments);
 });
+
+test('18개 자동 혜택 제외는 OFF·ON 후 유지되고 직접 재연결은 독립적이다', () => {
+  let s = on(industries, { limit: 18, patterns: [] });
+  const current = availableCampaigns(s);
+  assert.equal(activeLinks(s).length, 18);
+  for (const [index, campaign] of current.entries()) {
+    s = step(s, 'EXCLUDE', { id: campaign.id });
+    assert.equal(activeLinks(s).length, 17 - index);
+    assert.equal(connection(s, campaign.id), undefined);
+    assert.ok(s.excluded.includes(campaign.id));
+  }
+  s = step(step(s, 'DISABLE'), 'ENABLE');
+  assert.equal(activeLinks(s).length, 0);
+  for (const campaign of current) {
+    s = step(s, 'LINK_MANUAL', { id: campaign.id });
+    assert.equal(connection(s, campaign.id).mode, 'manual');
+    assert.equal(activeLinks(s).length, 1);
+    s = step(s, 'UNLINK_MANUAL', { id: campaign.id });
+    s = step(s, 'SELECT');
+    assert.equal(activeLinks(s).length, 0);
+    assert.ok(s.excluded.includes(campaign.id));
+  }
+});
