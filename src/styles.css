@@ -24,3 +24,10 @@
 .inline-notice{font-size:14px;line-height:22px;padding:12px 14px;border-radius:12px;background:var(--tint);color:var(--muted);word-break:keep-all;overflow-wrap:anywhere}
 @media(max-width:560px){.demo-grid{grid-template-columns:1fr}.demo-tools{padding:16px}}
 @media(max-width:400px){.benefit-body{grid-template-columns:40px minmax(0,1fr);gap:9px}}
+
+/* Expanded catalog: preserve compact rows and keep long category labels readable. */
+.benefit-category{display:flex;flex-direction:column;gap:12px;min-width:0}
+.benefit-category h4{margin:0;font-size:16px;line-height:26px;font-weight:700;color:var(--ink)}
+.merchant{object-fit:contain;background:#fff}
+.industry{padding:0 8px;white-space:nowrap;letter-spacing:-.35px}
+@media(max-width:400px){.industry-grid{grid-template-columns:1fr;gap:12px}.industry{height:50px}}

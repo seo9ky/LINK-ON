@@ -1,5 +1,5 @@
 import { useState, useEffect, type Dispatch } from 'react';
-import { campaigns, merchants, campaign, availableCampaigns, reducer, type Action, type Availability, type LinkState } from './model';
+import { industries, campaigns, merchants, campaign, availableCampaigns, reducer, type Action, type Availability, type LinkState } from './model';
 
 export function DemoTools({ state, dispatch, navigate, blocked = false }: { state: LinkState; dispatch: Dispatch<Action>; navigate: (route: string) => void; blocked?: boolean }) {
   const [date, setDate] = useState(state.date);
@@ -18,7 +18,7 @@ export function DemoTools({ state, dispatch, navigate, blocked = false }: { stat
     <p>가상의 고객·행사·결제로 동작을 확인합니다. 실제 결제와 금융 API 연결은 없습니다.</p>
     <div className="demo-grid">
       <section><h3>맞춤 혜택 선정</h3>
-        <label>시연 이용 패턴<select value={pattern} onChange={e => setPattern(e.target.value)}><option value="">이용 이력 없음</option><option value="카페">카페</option><option value="온라인 쇼핑">온라인 쇼핑</option><option value="카페,온라인 쇼핑">카페 · 온라인 쇼핑</option></select></label>
+        <label>시연 이용 패턴<select value={pattern} onChange={e => setPattern(e.target.value)}><option value="">이용 이력 없음</option>{industries.map(industry => <option key={industry} value={industry}>{industry}</option>)}<option value={industries.join(',')}>전체 업종</option>{state.patterns.length > 1 && state.patterns.length < industries.length && <option value={state.patterns.join(',')}>{state.patterns.join(' / ')}</option>}</select></label>
         <label>시연 한도 (확정 운영 수치 아님)<input type="number" min="0" max="20" step="1" value={limit} onInput={e => setLimit(e.currentTarget.value)} onChange={e => setLimit(e.target.value)} /></label>
         <button onClick={() => { if (limit === '' || !Number.isInteger(Number(limit)) || Number(limit) < 0 || Number(limit) > 20) { setFeedback('시연 한도는 0~20의 정수로 입력해 주세요.'); return; } execute({ type: 'CONFIGURE', limit: Number(limit), patterns: pattern ? pattern.split(',') : [] }, '시연 조건을 저장했어요.'); }}>시연 조건 저장</button>
         <button disabled={!state.enabled} onClick={() => execute({ type: 'SELECT' }, '현재 조건으로 선정했어요. 기존 연결은 유지하고 가능한 혜택만 추가해요.')}>새 혜택 선정 실행</button>
@@ -27,7 +27,7 @@ export function DemoTools({ state, dispatch, navigate, blocked = false }: { stat
         <small>현재 {state.date} · 11월/12월 행사를 제공합니다. 이전 날짜로 가려면 처음부터 다시 보기를 사용하세요. 한도 축소 시 기존 연결을 취소하지 않고 신규 연결을 제한합니다.</small>
       </section>
       <section><h3>시연 결제</h3>
-        <label>결제 대상 행사<select value={id} onChange={e => { setId(e.target.value); setAmount(e.target.value.startsWith('ssf') ? '32000' : '6500'); }}>{campaigns.map(c => <option key={c.id} value={c.id}>{merchants[c.merchant].name} · {c.start.slice(5, 7)}월</option>)}</select></label>
+        <label>결제 대상 행사<select value={id} onChange={e => { setId(e.target.value); setAmount(String((campaign(e.target.value)?.minimum || 5000) + 1500)); }}>{campaigns.map(c => <option key={c.id} value={c.id}>{merchants[c.merchant].name} · {c.start.slice(5, 7)}월</option>)}</select></label>
         <label>결제금액 (원)<input type="number" min="1" max="100000000" step="1" value={amount} onInput={e => setAmount(e.currentTarget.value)} onChange={e => setAmount(e.target.value)} /></label>
         <label className="demo-check"><input type="checkbox" checked={other} onChange={e => setOther(e.target.checked)} />다른 할인 적용 (시연 중복 조건)</label>
         <button onClick={() => { const next = execute({ type: 'PAY', id, amount: Number(amount), otherDiscount: other }, '결제를 접수했어요. 전표 접수 후 적용 여부를 확인해 보세요.'); if (next.payments.length > state.payments.length) navigate('/results/pending'); }}>시연 결제 접수</button>

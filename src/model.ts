@@ -1,17 +1,36 @@
-export type MerchantId = 'starbucks' | 'ssf' | 'gs25';
+export type MerchantId = 'starbucks' | 'gongcha' | 'baskinrobbins' | 'bbq' | 'dominos' | 'baemin' | 'coupang' | 'ssg' | 'elevenst' | 'ssf' | 'kream' | 'zigzag' | 'oliveyoung' | 'iherb' | 'doctornow' | 'gs25' | 'cu' | 'emart';
+export const industries = ["외식 · 간식", "간편식 · 배달", "온라인쇼핑몰", "패션 · 스타일", "건강 · 화장품", "마트 · 슈퍼 · 편의점"];
 export const merchants = {
-  starbucks: { name: '스타벅스', discount: '1,000원 할인', minimum: '5,000원', image: 'starbucks.png', subtitle: '평소 즐기는 커피, 혜택도 챙겨요.' },
-  ssf: { name: 'SSF SHOP', discount: '2,000원 할인', minimum: '30,000원', image: 'ssf.png', subtitle: '평소 즐기는 쇼핑, 혜택도 챙겨요.' },
-  gs25: { name: 'GS25', discount: '1,000원 할인', minimum: '5,000원', image: 'gs25.png', subtitle: '필요한 편의점 혜택을 직접 챙겨요.' },
+  starbucks: {"name": "스타벅스", "industry": "외식 · 간식", "discount": "1,000원 할인", "minimum": "5,000원", "minimumAmount": 5000, "discountAmount": 1000, "image": "starbucks.png", "subtitle": "평소 즐기는 커피, 혜택도 챙겨요."},
+  gongcha: {"name": "공차", "industry": "외식 · 간식", "discount": "1,000원 할인", "minimum": "5,000원", "minimumAmount": 5000, "discountAmount": 1000, "image": "gongcha.png", "subtitle": "필요한 외식 · 간식 혜택을 챙겨요."},
+  baskinrobbins: {"name": "배스킨라빈스", "industry": "외식 · 간식", "discount": "1,000원 할인", "minimum": "10,000원", "minimumAmount": 10000, "discountAmount": 1000, "image": "baskinrobbins.png", "subtitle": "필요한 외식 · 간식 혜택을 챙겨요."},
+  bbq: {"name": "BBQ", "industry": "간편식 · 배달", "discount": "2,000원 할인", "minimum": "20,000원", "minimumAmount": 20000, "discountAmount": 2000, "image": "bbq.png", "subtitle": "필요한 간편식 · 배달 혜택을 챙겨요."},
+  dominos: {"name": "도미노피자", "industry": "간편식 · 배달", "discount": "2,000원 할인", "minimum": "20,000원", "minimumAmount": 20000, "discountAmount": 2000, "image": "dominos.png", "subtitle": "필요한 간편식 · 배달 혜택을 챙겨요."},
+  baemin: {"name": "배달의민족", "industry": "간편식 · 배달", "discount": "1,000원 할인", "minimum": "15,000원", "minimumAmount": 15000, "discountAmount": 1000, "image": "baemin.png", "subtitle": "필요한 간편식 · 배달 혜택을 챙겨요."},
+  coupang: {"name": "쿠팡", "industry": "온라인쇼핑몰", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "coupang.png", "subtitle": "필요한 온라인쇼핑몰 혜택을 챙겨요."},
+  ssg: {"name": "SSG.COM", "industry": "온라인쇼핑몰", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "ssg.png", "subtitle": "필요한 온라인쇼핑몰 혜택을 챙겨요."},
+  elevenst: {"name": "11번가", "industry": "온라인쇼핑몰", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "elevenst.png", "subtitle": "필요한 온라인쇼핑몰 혜택을 챙겨요."},
+  ssf: {"name": "SSF SHOP", "industry": "패션 · 스타일", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "ssf.png", "subtitle": "평소 즐기는 쇼핑, 혜택도 챙겨요."},
+  kream: {"name": "KREAM", "industry": "패션 · 스타일", "discount": "2,000원 할인", "minimum": "50,000원", "minimumAmount": 50000, "discountAmount": 2000, "image": "kream.png", "subtitle": "필요한 패션 · 스타일 혜택을 챙겨요."},
+  zigzag: {"name": "지그재그", "industry": "패션 · 스타일", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "zigzag.png", "subtitle": "필요한 패션 · 스타일 혜택을 챙겨요."},
+  oliveyoung: {"name": "올리브영", "industry": "건강 · 화장품", "discount": "1,000원 할인", "minimum": "20,000원", "minimumAmount": 20000, "discountAmount": 1000, "image": "oliveyoung.png", "subtitle": "필요한 건강 · 화장품 혜택을 챙겨요."},
+  iherb: {"name": "아이허브", "industry": "건강 · 화장품", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "iherb.png", "subtitle": "필요한 건강 · 화장품 혜택을 챙겨요."},
+  doctornow: {"name": "닥터나우", "industry": "건강 · 화장품", "discount": "1,000원 할인", "minimum": "10,000원", "minimumAmount": 10000, "discountAmount": 1000, "image": "doctornow.png", "subtitle": "필요한 건강 · 화장품 혜택을 챙겨요."},
+  gs25: {"name": "GS25", "industry": "마트 · 슈퍼 · 편의점", "discount": "1,000원 할인", "minimum": "5,000원", "minimumAmount": 5000, "discountAmount": 1000, "image": "gs25.png", "subtitle": "필요한 편의점 혜택을 직접 챙겨요."},
+  cu: {"name": "CU", "industry": "마트 · 슈퍼 · 편의점", "discount": "1,000원 할인", "minimum": "5,000원", "minimumAmount": 5000, "discountAmount": 1000, "image": "cu.png", "subtitle": "필요한 마트 · 슈퍼 · 편의점 혜택을 챙겨요."},
+  emart: {"name": "이마트", "industry": "마트 · 슈퍼 · 편의점", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "emart.png", "subtitle": "필요한 마트 · 슈퍼 · 편의점 혜택을 챙겨요."},
 } as const;
-export const industries = ['카페', '편의점', '온라인 쇼핑', '외식', '마트', '문화·여가'];
+export const merchantIds = Object.keys(merchants) as MerchantId[];
 export interface Campaign { id: string; merchant: MerchantId; industry: string; start: string; end: string; minimum: number; discount: number; autoEligible: boolean }
 // Demo catalog and rules, not a live offer feed or a production recommendation algorithm.
-export const campaigns: Campaign[] = ['11', '12'].flatMap(month => (['starbucks', 'ssf', 'gs25'] as MerchantId[]).map(merchant => ({
-  id: `${merchant}-2026${month}`, merchant, industry: merchant === 'starbucks' ? '카페' : merchant === 'ssf' ? '온라인 쇼핑' : '편의점',
+export const campaigns: Campaign[] = ['11', '12'].flatMap(month => merchantIds.map(merchant => ({
+  id: `${merchant}-2026${month}`, merchant, industry: merchants[merchant].industry,
   start: `2026-${month}-01`, end: `2026-${month}-${month === '11' ? '30' : '31'}`,
-  minimum: merchant === 'ssf' ? 30000 : 5000, discount: merchant === 'ssf' ? 2000 : 1000, autoEligible: merchant !== 'gs25',
+  minimum: merchants[merchant].minimumAmount, discount: merchants[merchant].discountAmount, autoEligible: true,
 })));
+// Preserve saved choices from the original three-merchant catalog without rewriting payment history.
+const legacyIndustries: Record<string, string> = { '카페': industries[0], '외식': industries[0], '편의점': industries[5], '마트': industries[5], '온라인 쇼핑': industries[3] };
+const restoreIndustries = (values: unknown[]) => [...new Set(values.filter((v): v is string => typeof v === 'string').map(v => legacyIndustries[v] || v).filter(v => industries.includes(v)))];
 export type LinkMode = 'auto' | 'manual';
 export interface Connection { campaignId: string; mode: LinkMode; linkedOn: string; reason: string; closedOn?: string; closedReason?: 'excluded' | 'unlinked' | 'expired' }
 export interface Payment { id: number; campaignId: string; date: string; amount: number; mode: LinkMode | null; status: 'pending' | 'done' | 'failed'; eligibleDiscount: number; discount: number; reason: string }
@@ -22,8 +41,8 @@ export interface LinkState {
   payments: Payment[]; availability: Record<string, Availability>; notice: string;
 }
 export const initialState: LinkState = {
-  version: 2, optedIn: false, enabled: false, interests: ['카페', '온라인 쇼핑'],
-  date: '2026-11-03', limit: 2, patterns: ['카페'], connections: [], excluded: [], payments: [], availability: {}, notice: '',
+  version: 2, optedIn: false, enabled: false, interests: [industries[0], industries[3]],
+  date: '2026-11-03', limit: 2, patterns: [industries[0]], connections: [], excluded: [], payments: [], availability: {}, notice: '',
 };
 export const money = (n: number) => `${n.toLocaleString('ko-KR')}원`;
 export const campaign = (id: string) => campaigns.find(c => c.id === id);
@@ -58,8 +77,15 @@ function selectBenefits(s: LinkState): LinkState {
   const capacity = Math.max(0, s.limit - activeLinks(s).filter(l => l.mode === 'auto').length);
   const candidates = availableCampaigns(s).filter(c => c.autoEligible && !connection(s, c.id) && !s.excluded.includes(c.id) && !used(s, c.id) && (!s.availability[c.id] || s.availability[c.id] === 'available') && selectionReason(s, c));
   const score = (c: Campaign) => Number(s.interests.includes(c.industry)) * 2 + Number(s.patterns.includes(c.industry));
-  candidates.sort((a, b) => score(b) - score(a) || a.id.localeCompare(b.id));
-  const links = candidates.slice(0, capacity).map(c => ({ campaignId: c.id, mode: 'auto' as const, linkedOn: s.date, reason: selectionReason(s, c) }));
+  // Prefer relevant industries not yet represented, then relevance and stable catalog order.
+  // This is a transparent demo heuristic, not a production recommendation model.
+  const selected: Campaign[] = [];
+  const covered = new Set(activeLinks(s).filter(l => l.mode === 'auto').map(l => campaign(l.campaignId)!.industry));
+  while (selected.length < capacity && candidates.length) {
+    candidates.sort((a, b) => Number(covered.has(a.industry)) - Number(covered.has(b.industry)) || score(b) - score(a) || merchantIds.indexOf(a.merchant) - merchantIds.indexOf(b.merchant));
+    const next = candidates.shift()!; selected.push(next); covered.add(next.industry);
+  }
+  const links = selected.map(c => ({ campaignId: c.id, mode: 'auto' as const, linkedOn: s.date, reason: selectionReason(s, c) }));
   return { ...s, connections: [...s.connections, ...links] };
 }
 export type Action =
@@ -122,7 +148,7 @@ export function restoreState(data: unknown): LinkState {
   if (!data || typeof data !== 'object') return fresh();
   const d = data as Record<string, any>;
   if (d.version === 1) {
-    const s = { ...fresh(), optedIn: d.optedIn === true, enabled: d.optedIn === true && d.enabled === true, interests: Array.isArray(d.interests) ? d.interests.filter((v: string) => industries.includes(v)) : initialState.interests };
+    const s = { ...fresh(), optedIn: d.optedIn === true, enabled: d.optedIn === true && d.enabled === true, interests: Array.isArray(d.interests) ? restoreIndustries(d.interests) : initialState.interests };
     s.excluded = Array.isArray(d.excluded) ? d.excluded.map((v: string) => `${v}-202611`).filter((id: string) => campaign(id)) : [];
     const ids = Array.isArray(d.linkedAuto) ? d.linkedAuto.filter((id: string) => ['starbucks', 'ssf'].includes(id) && !s.excluded.includes(`${id}-202611`)) : [];
     s.connections = [...ids.map((id: string) => ({ campaignId: `${id}-202611`, mode: 'auto' as const, linkedOn: s.date, reason: '이전 시연에서 연결한 혜택이에요.' })), ...(d.manualLinked ? [{ campaignId: 'gs25-202611', mode: 'manual' as const, linkedOn: s.date, reason: '고객이 직접 선택한 혜택이에요.' }] : [])];
@@ -131,7 +157,7 @@ export function restoreState(data: unknown): LinkState {
   if (d.version !== 2 || !Array.isArray(d.connections) || !Array.isArray(d.payments) || !Array.isArray(d.interests) || !Array.isArray(d.patterns) || !Array.isArray(d.excluded) || !/^\d{4}-\d{2}-\d{2}$/.test(d.date) || !Number.isFinite(Date.parse(d.date)) || !Number.isInteger(d.limit) || d.limit < 0 || d.limit > 20) return fresh();
   if (d.connections.some((l: Connection) => !l || !campaign(l.campaignId) || !['auto', 'manual'].includes(l.mode)) || d.payments.some((p: Payment) => !p || !campaign(p.campaignId) || !Number.isFinite(p.amount) || !Number.isFinite(p.discount) || !Number.isFinite(p.eligibleDiscount) || !['done', 'failed', 'pending'].includes(p.status))) return fresh();
   const availability = Object.fromEntries(Object.entries(d.availability && typeof d.availability === 'object' ? d.availability : {}).filter(([id, value]) => campaign(id) && ['available', 'soldout', 'error'].includes(value as string)));
-  return { ...fresh(), ...d, availability, optedIn: d.optedIn === true, enabled: d.optedIn === true && d.enabled === true, interests: d.interests.filter((v: string) => industries.includes(v)), patterns: d.patterns.filter((v: string) => industries.includes(v)), excluded: d.excluded.filter((id: string) => campaign(id)), notice: '' } as LinkState;
+  return { ...fresh(), ...d, availability, optedIn: d.optedIn === true, enabled: d.optedIn === true && d.enabled === true, interests: restoreIndustries(d.interests), patterns: restoreIndustries(d.patterns), excluded: d.excluded.filter((id: string) => campaign(id)), notice: '' } as LinkState;
 }
 export function readState(): LinkState {
   try { return restoreState(JSON.parse(localStorage.getItem(storageKey) || localStorage.getItem('link-on-demo-v1') || 'null')); }

@@ -138,7 +138,10 @@ function App() {
   const resultFooter = <Button secondary onClick={results}>받은 혜택 · 이용 결과 보기</Button>;
   const summary = <div className="summary"><div><span>링크한 혜택</span><strong aria-label="링크한 혜택 개수">{count}개</strong></div><div><span>받은 혜택금액</span><strong>{money(totalDiscount(state))}</strong></div></div>;
   const manualRow = (c: Campaign) => <Benefit key={c.id} offer={c} unavailable={!connection(state, c.id) ? usageLabel(state, c.id) || (state.availability[c.id] === 'soldout' ? '예산 소진' : '') : ''} mode={connection(state, c.id) ? 'complete' : 'link'} onClick={() => openDetail(c.id)} onAction={connection(state, c.id) ? () => openDetail(c.id) : () => linkManual(c.id)} />;
-  const manualList = manualOffers.length ? manualOffers.map(manualRow) : <Note>지금은 직접 연결할 행사 혜택이 없어요.</Note>;
+  const manualList = manualOffers.length ? industries.map(industry => {
+    const offers = manualOffers.filter(c => c.industry === industry);
+    return offers.length ? <section className="benefit-category" key={industry} aria-label={industry}><h4>{industry}</h4>{offers.map(manualRow)}</section> : null;
+  }) : <Note>지금은 직접 연결할 행사 혜택이 없어요.</Note>;
   const autoBenefits = (mode: 'detail' | 'complete' | 'exclude' = 'detail') => auto.map(l => <Benefit key={l.campaignId} offer={campaign(l.campaignId)!} mode={mode} retained={!state.enabled} onClick={() => openDetail(l.campaignId)} onAction={mode === 'exclude' ? () => openModal('exclude', l.campaignId) : () => openDetail(l.campaignId)} />);
 
   if (isMain && !state.optedIn) {

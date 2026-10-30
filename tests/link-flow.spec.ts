@@ -107,24 +107,27 @@ test('개별 제외 후 재활성화해도 이번 행사 혜택이 복구되지 
   await page.getByRole('button', { name: '자동 LINK 관리', exact: true }).click();
   await page.getByRole('switch').click(); await page.getByRole('button', { name: '자동 연결 끄기', exact: true }).click();
   await page.getByRole('button', { name: 'LINK ON 다시 켜기', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '지금은 자동으로 연결할 혜택이 없어요' })).toBeVisible();
+  await expect(page.getByLabel('링크한 혜택 개수')).toHaveText('2개');
+  await expect(page.getByRole('button', { name: '공차 혜택 상세' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'KREAM 혜택 상세' })).toBeVisible();
 });
 test('관심 업종 취소·저장과 다음 행사 선정', async ({ page }) => {
   await ready(page); await enable(page);
   await page.getByRole('button', { name: '관리 ›' }).click();
   await page.getByRole('button', { name: '관심 업종 변경 ›' }).click();
-  await page.getByRole('button', { name: '카페', exact: true }).click();
+  await page.getByRole('button', { name: '외식 · 간식', exact: true }).click();
   await page.getByRole('button', { name: '뒤로', exact: true }).click();
-  await expect(page.locator('.interest-summary strong')).toHaveText('카페 · 온라인 쇼핑');
+  await expect(page.locator('.interest-summary strong')).toHaveText('외식 · 간식 · 패션 · 스타일');
   await page.getByRole('button', { name: '관심 업종 변경 ›' }).click();
-  await page.getByRole('button', { name: '온라인 쇼핑', exact: true }).click();
+  await page.getByRole('button', { name: '패션 · 스타일', exact: true }).click();
   await page.getByRole('button', { name: '저장하고 혜택 확인하기' }).click();
   await expect(page.getByLabel('링크한 혜택 개수')).toHaveText('2개');
   await page.locator('.demo-tools summary').click();
   await page.getByLabel('시연 날짜', { exact: true }).fill('2026-12-01');
   await page.getByRole('button', { name: '날짜 적용', exact: true }).click();
-  await expect(page.getByLabel('링크한 혜택 개수')).toHaveText('1개');
+  await expect(page.getByLabel('링크한 혜택 개수')).toHaveText('2개');
   await expect(page.getByRole('button', { name: '스타벅스 혜택 상세' })).toContainText('12.31');
+  await expect(page.getByRole('button', { name: '공차 혜택 상세' })).toBeVisible();
 });
 
 test('직접 연결 → 결제 → 해제 → 전표 → 할인 합계, 후속 결제는 미적용', async ({ page }) => {
