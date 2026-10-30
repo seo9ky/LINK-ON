@@ -37,12 +37,37 @@ d.text((600*S,330*S),'나에게 맞는 혜택, 알아서 LINK!',font=font,fill='
 qr=qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H,border=4)
 qr.add_data('https://link-on.kro.kr/');qr.make(fit=True)
 m=qr.get_matrix();n=len(m);unit=25;startx=(W-n*unit)/2;starty=880-n*unit/2
+# Two solid diagonal ribbons cross in the QR, with a distinct magenta overlap.
+# Darker brand-family tones keep the code readable on white without gradients.
+def module_color(row,col):
+    cyan=abs(row-col)<=7
+    pink=abs(row+col-(n-1))<=7
+    if cyan and pink:return '#94218C'
+    if cyan:return '#0088BC'
+    if pink:return '#D70A80'
+    return '#003CDC'
+
+# Keep the full four-module quiet zone inside the fine neutral frame.
+pad=14
+d.rounded_rectangle(((startx-pad)*S,(starty-pad)*S,
+                     (startx+n*unit+pad)*S,(starty+n*unit+pad)*S),
+                    radius=36*S,outline='#DDE1E6',width=2*S)
+finders=((4,4),(4,n-11),(n-11,4))
 for row,line in enumerate(m):
  for col,on in enumerate(line):
   if not on:continue
-  color='#000000'
+  if any(r<=row<r+7 and c<=col<c+7 for r,c in finders):continue
+  color=module_color(row,col)
   x,y=(startx+col*unit)*S,(starty+row*unit)*S
   d.rectangle((x,y,x+unit*S-1,y+unit*S-1),fill=color)
+# Soft finder corners echo the rounded app-icon silhouette; no logo covers data.
+for row,col in finders:
+ x,y=(startx+col*unit)*S,(starty+row*unit)*S
+ color=module_color(row+3,col+3)
+ for inset,fill,radius in ((0,color,.55),(1,'white',.3),(2,color,.15)):
+  d.rounded_rectangle((x+inset*unit*S,y+inset*unit*S,
+                       x+(7-inset)*unit*S-1,y+(7-inset)*unit*S-1),
+                      radius=radius*unit*S,fill=fill)
 img=img.convert('RGB').resize((W,H),Image.Resampling.LANCZOS)
 output=ROOT/'docs/assets/LINK-ON-QR.png';img.save(output,dpi=(300,300),optimize=True)
 print(f'{output} | {W}x{H} | modules: {n-8} | quiet zone: 4 | ECC H')
