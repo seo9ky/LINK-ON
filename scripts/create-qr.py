@@ -41,7 +41,7 @@ m=qr.get_matrix();n=len(m);unit=25;startx=(W-n*unit)/2;starty=880-n*unit/2
 ink='#292B30'
 cyan='#00AEF3'
 pink='#EF028D'
-finder_ring='#94218C'
+finder_ring=ink
 
 # Keep the full four-module quiet zone inside the fine neutral frame.
 pad=14
