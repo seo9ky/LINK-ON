@@ -37,9 +37,10 @@ d.text((600*S,330*S),'나에게 맞는 혜택, 알아서 LINK!',font=font,fill='
 qr=qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H,border=4)
 qr.add_data('https://link-on.kro.kr/');qr.make(fit=True)
 m=qr.get_matrix();n=len(m);unit=25;startx=(W-n*unit)/2;starty=880-n*unit/2
-# Uniform action blue, with one magenta accent in the upper-right finder.
-blue='#003CDC'
-magenta='#EF028D'
+# Neutral data modules with LINK cyan and pink finder accents.
+ink='#292B30'
+cyan='#00AEF3'
+pink='#EF028D'
 
 # Keep the full four-module quiet zone inside the fine neutral frame.
 pad=14
@@ -51,14 +52,14 @@ for row,line in enumerate(m):
  for col,on in enumerate(line):
   if not on:continue
   if any(r<=row<r+7 and c<=col<c+7 for r,c in finders):continue
-  color=blue
+  color=ink
   x,y=(startx+col*unit)*S,(starty+row*unit)*S
   d.rectangle((x,y,x+unit*S-1,y+unit*S-1),fill=color)
 # Soft finder corners echo the rounded app-icon silhouette; no logo covers data.
 for row,col in finders:
  x,y=(startx+col*unit)*S,(starty+row*unit)*S
- center=magenta if (row,col)==(4,n-11) else blue
- for inset,fill,radius in ((0,blue,.55),(1,'white',.3),(2,center,.15)):
+ accent=pink if (row,col)==(4,n-11) else cyan
+ for inset,fill,radius in ((0,accent,.55),(1,'white',.3),(2,accent,.15)):
   d.rounded_rectangle((x+inset*unit*S,y+inset*unit*S,
                        x+(7-inset)*unit*S-1,y+(7-inset)*unit*S-1),
                       radius=radius*unit*S,fill=fill)
