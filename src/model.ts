@@ -1,24 +1,24 @@
 export type MerchantId = 'starbucks' | 'gongcha' | 'baskinrobbins' | 'bbq' | 'dominos' | 'baemin' | 'coupang' | 'ssg' | 'elevenst' | 'ssf' | 'kream' | 'zigzag' | 'oliveyoung' | 'iherb' | 'doctornow' | 'gs25' | 'cu' | 'emart';
 export const industries = ["외식 · 간식", "간편식 · 배달", "온라인쇼핑몰", "패션 · 스타일", "건강 · 화장품", "마트 · 슈퍼 · 편의점"];
 export const merchants = {
-  starbucks: {"name": "스타벅스", "industry": "외식 · 간식", "discount": "1,000원 할인", "minimum": "5,000원", "minimumAmount": 5000, "discountAmount": 1000, "image": "starbucks.png", "subtitle": "평소 즐기는 커피, 혜택도 챙겨요."},
-  gongcha: {"name": "공차", "industry": "외식 · 간식", "discount": "1,000원 할인", "minimum": "5,000원", "minimumAmount": 5000, "discountAmount": 1000, "image": "gongcha.png", "subtitle": "필요한 외식 · 간식 혜택을 챙겨요."},
-  baskinrobbins: {"name": "배스킨라빈스", "industry": "외식 · 간식", "discount": "1,000원 할인", "minimum": "10,000원", "minimumAmount": 10000, "discountAmount": 1000, "image": "baskinrobbins.png", "subtitle": "필요한 외식 · 간식 혜택을 챙겨요."},
-  bbq: {"name": "BBQ", "industry": "간편식 · 배달", "discount": "2,000원 할인", "minimum": "20,000원", "minimumAmount": 20000, "discountAmount": 2000, "image": "bbq.png", "subtitle": "필요한 간편식 · 배달 혜택을 챙겨요."},
-  dominos: {"name": "도미노피자", "industry": "간편식 · 배달", "discount": "2,000원 할인", "minimum": "20,000원", "minimumAmount": 20000, "discountAmount": 2000, "image": "dominos.png", "subtitle": "필요한 간편식 · 배달 혜택을 챙겨요."},
-  baemin: {"name": "배달의민족", "industry": "간편식 · 배달", "discount": "1,000원 할인", "minimum": "15,000원", "minimumAmount": 15000, "discountAmount": 1000, "image": "baemin.png", "subtitle": "필요한 간편식 · 배달 혜택을 챙겨요."},
-  coupang: {"name": "쿠팡", "industry": "온라인쇼핑몰", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "coupang.png", "subtitle": "필요한 온라인쇼핑몰 혜택을 챙겨요."},
-  ssg: {"name": "SSG.COM", "industry": "온라인쇼핑몰", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "ssg.png", "subtitle": "필요한 온라인쇼핑몰 혜택을 챙겨요."},
-  elevenst: {"name": "11번가", "industry": "온라인쇼핑몰", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "elevenst.png", "subtitle": "필요한 온라인쇼핑몰 혜택을 챙겨요."},
-  ssf: {"name": "SSF SHOP", "industry": "패션 · 스타일", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "ssf.png", "subtitle": "평소 즐기는 쇼핑, 혜택도 챙겨요."},
-  kream: {"name": "KREAM", "industry": "패션 · 스타일", "discount": "2,000원 할인", "minimum": "50,000원", "minimumAmount": 50000, "discountAmount": 2000, "image": "kream.png", "subtitle": "필요한 패션 · 스타일 혜택을 챙겨요."},
-  zigzag: {"name": "지그재그", "industry": "패션 · 스타일", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "zigzag.png", "subtitle": "필요한 패션 · 스타일 혜택을 챙겨요."},
-  oliveyoung: {"name": "올리브영", "industry": "건강 · 화장품", "discount": "1,000원 할인", "minimum": "20,000원", "minimumAmount": 20000, "discountAmount": 1000, "image": "oliveyoung.png", "subtitle": "필요한 건강 · 화장품 혜택을 챙겨요."},
-  iherb: {"name": "아이허브", "industry": "건강 · 화장품", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "iherb.png", "subtitle": "필요한 건강 · 화장품 혜택을 챙겨요."},
-  doctornow: {"name": "닥터나우", "industry": "건강 · 화장품", "discount": "1,000원 할인", "minimum": "10,000원", "minimumAmount": 10000, "discountAmount": 1000, "image": "doctornow.png", "subtitle": "필요한 건강 · 화장품 혜택을 챙겨요."},
-  gs25: {"name": "GS25", "industry": "마트 · 슈퍼 · 편의점", "discount": "1,000원 할인", "minimum": "5,000원", "minimumAmount": 5000, "discountAmount": 1000, "image": "gs25.png", "subtitle": "필요한 편의점 혜택을 직접 챙겨요."},
-  cu: {"name": "CU", "industry": "마트 · 슈퍼 · 편의점", "discount": "1,000원 할인", "minimum": "5,000원", "minimumAmount": 5000, "discountAmount": 1000, "image": "cu.png", "subtitle": "필요한 마트 · 슈퍼 · 편의점 혜택을 챙겨요."},
-  emart: {"name": "이마트", "industry": "마트 · 슈퍼 · 편의점", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "emart.png", "subtitle": "필요한 마트 · 슈퍼 · 편의점 혜택을 챙겨요."},
+  starbucks: {"name": "스타벅스", "industry": "외식 · 간식", "discount": "1,000원 할인", "minimum": "5,000원", "minimumAmount": 5000, "discountAmount": 1000, "image": "starbucks.png"},
+  gongcha: {"name": "공차", "industry": "외식 · 간식", "discount": "1,000원 할인", "minimum": "5,000원", "minimumAmount": 5000, "discountAmount": 1000, "image": "gongcha.png"},
+  baskinrobbins: {"name": "배스킨라빈스", "industry": "외식 · 간식", "discount": "1,000원 할인", "minimum": "10,000원", "minimumAmount": 10000, "discountAmount": 1000, "image": "baskinrobbins.png"},
+  bbq: {"name": "BBQ", "industry": "간편식 · 배달", "discount": "2,000원 할인", "minimum": "20,000원", "minimumAmount": 20000, "discountAmount": 2000, "image": "bbq.png"},
+  dominos: {"name": "도미노피자", "industry": "간편식 · 배달", "discount": "2,000원 할인", "minimum": "20,000원", "minimumAmount": 20000, "discountAmount": 2000, "image": "dominos.png"},
+  baemin: {"name": "배달의민족", "industry": "간편식 · 배달", "discount": "1,000원 할인", "minimum": "15,000원", "minimumAmount": 15000, "discountAmount": 1000, "image": "baemin.png"},
+  coupang: {"name": "쿠팡", "industry": "온라인쇼핑몰", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "coupang.png"},
+  ssg: {"name": "SSG.COM", "industry": "온라인쇼핑몰", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "ssg.png"},
+  elevenst: {"name": "11번가", "industry": "온라인쇼핑몰", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "elevenst.png"},
+  ssf: {"name": "SSF SHOP", "industry": "패션 · 스타일", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "ssf.png"},
+  kream: {"name": "KREAM", "industry": "패션 · 스타일", "discount": "2,000원 할인", "minimum": "50,000원", "minimumAmount": 50000, "discountAmount": 2000, "image": "kream.png"},
+  zigzag: {"name": "지그재그", "industry": "패션 · 스타일", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "zigzag.png"},
+  oliveyoung: {"name": "올리브영", "industry": "건강 · 화장품", "discount": "1,000원 할인", "minimum": "20,000원", "minimumAmount": 20000, "discountAmount": 1000, "image": "oliveyoung.png"},
+  iherb: {"name": "아이허브", "industry": "건강 · 화장품", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "iherb.png"},
+  doctornow: {"name": "닥터나우", "industry": "건강 · 화장품", "discount": "1,000원 할인", "minimum": "10,000원", "minimumAmount": 10000, "discountAmount": 1000, "image": "doctornow.png"},
+  gs25: {"name": "GS25", "industry": "마트 · 슈퍼 · 편의점", "discount": "1,000원 할인", "minimum": "5,000원", "minimumAmount": 5000, "discountAmount": 1000, "image": "gs25.png"},
+  cu: {"name": "CU", "industry": "마트 · 슈퍼 · 편의점", "discount": "1,000원 할인", "minimum": "5,000원", "minimumAmount": 5000, "discountAmount": 1000, "image": "cu.png"},
+  emart: {"name": "이마트", "industry": "마트 · 슈퍼 · 편의점", "discount": "2,000원 할인", "minimum": "30,000원", "minimumAmount": 30000, "discountAmount": 2000, "image": "emart.png"},
 } as const;
 export const merchantIds = Object.keys(merchants) as MerchantId[];
 export interface Campaign { id: string; merchant: MerchantId; industry: string; start: string; end: string; minimum: number; discount: number; autoEligible: boolean }
@@ -56,14 +56,14 @@ export const usageLabel = (s: LinkState, id: string) => s.payments.some(p => p.c
 const used = (s: LinkState, id: string) => !!usageLabel(s, id);
 export function selectionReason(s: LinkState, c: Campaign) {
   const selected = s.interests.includes(c.industry), pattern = s.patterns.includes(c.industry);
-  return selected && pattern ? `선택한 ${c.industry} 업종과 시연 이용 패턴을 함께 참고했어요.` : selected ? `관심 업종으로 선택한 ${c.industry} 혜택이에요.` : pattern ? `시연 고객의 ${c.industry} 이용 패턴을 참고했어요.` : '';
+  return selected && pattern ? `선택한 ${c.industry} 업종과 이용 패턴을 함께 참고했어요.` : selected ? `관심 업종으로 선택한 ${c.industry} 혜택이에요.` : pattern ? `${c.industry} 이용 패턴을 참고했어요.` : '';
 }
 export function emptyReason(s: LinkState) {
   const eligible = availableCampaigns(s).filter(c => c.autoEligible && selectionReason(s, c));
   if (!s.enabled) return '자동 연결이 꺼져 있어요. 기존 혜택은 만료일까지 유지돼요.';
   if (!availableCampaigns(s).length) return '현재 진행 중인 행사가 없어요. 새 행사를 기다려 주세요.';
   if (!s.limit) return '현재 고객별 자동 연결 한도가 없어요. 혜택은 직접 고를 수 있어요.';
-  if (!eligible.length) return '현재 관심 업종과 시연 이용 패턴에 맞는 혜택이 없어요. 관심 업종을 확인해 보세요.';
+  if (!eligible.length) return '현재 관심 업종과 이용 패턴에 맞는 혜택이 없어요. 관심 업종을 확인해 보세요.';
   if (eligible.every(c => connection(s, c.id)?.mode === 'manual')) return '맞춤 혜택은 이미 직접 연결되어 있어요. 같은 혜택을 중복 연결하지 않아요.';
   if (eligible.every(c => used(s, c.id))) return '맞춤 행사 혜택을 이미 이용했거나 결제를 확인 중이에요. 이용 결과를 확인해 주세요.';
   if (eligible.length && eligible.every(c => s.excluded.includes(c.id))) return '맞춤 행사 혜택을 모두 제외했어요. 새 행사는 별도로 선정해요.';
