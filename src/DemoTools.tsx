@@ -24,7 +24,6 @@ export function DemoTools({ state, dispatch, navigate, blocked = false }: { stat
   return <details className="demo-tools" inert={blocked} open={expanded} onToggle={event => setExpanded(event.currentTarget.open)}>
     <summary><span>시연 설정</span><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="m4.5 7 4.5 4.5L13.5 7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>
     <div className="settings-content">
-      <p className="settings-intro">조건을 바꾸며 LINK ON의 동작을 살펴보세요.</p>
       <div className="settings-tabs" role="tablist" aria-label="시연 설정 항목">{sections.map(([key, label], index) => <button key={key} id={`setting-tab-${key}`} role="tab" aria-selected={section === key} aria-controls={`setting-panel-${key}`} tabIndex={section === key ? 0 : -1} onClick={() => { setSection(key); setFeedback(''); }} onKeyDown={event => {
         const next = event.key === 'ArrowRight' ? (index + 1) % sections.length : event.key === 'ArrowLeft' ? (index + sections.length - 1) % sections.length : event.key === 'Home' ? 0 : event.key === 'End' ? sections.length - 1 : -1;
         if (next < 0) return;
