@@ -1,7 +1,8 @@
 import React, { useEffect, useLayoutEffect, useRef, useState, useReducer, type ReactNode, type CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
-import { initialState, industries, merchants, campaigns, campaign, availableCampaigns, connection, activeLinks, resolveCampaign, inPeriod, usageLabel, emptyReason, money, totalDiscount, readState, reducer, storageKey, type Campaign, type MerchantId } from './model';
+import { initialState, industries, merchants, campaigns, campaign, availableCampaigns, connection, activeLinks, resolveCampaign, inPeriod, usageLabel, emptyReason, money, totalDiscount, readState, reducer, storageKey, type Campaign, type MerchantId, type LinkState } from './model';
 import { PaymentExperience } from './PaymentExperience';
+import { SelectField } from './FormControls';
 import { DemoTools } from './DemoTools';
 import { initializeNavigation, useNavigation } from './navigation';
 import './styles.css';
@@ -34,19 +35,21 @@ function Pill({ children }: { children: ReactNode }) { return <span className="p
 function Merchant({ id, large = false }: { id: MerchantId; large?: boolean }) {
   return <span className={`merchant-frame ${large ? 'large' : ''}`}><img className={`merchant ${id} ${large ? 'large' : ''}`} src={asset(merchants[id].image)} alt="" /></span>;
 }
-function Benefit({ offer, mode, onClick, onAction = onClick, retained = false, unavailable = '' }: { unavailable?: string; offer: Campaign; mode: 'link' | 'complete' | 'detail' | 'exclude'; onClick: () => void; onAction?: () => void; retained?: boolean }) {
+function Benefit({ offer, mode, onClick, onAction = onClick, retained = false, unavailable = '', used = '' }: { used?: string; unavailable?: string; offer: Campaign; mode: 'link' | 'complete' | 'detail' | 'exclude'; onClick: () => void; onAction?: () => void; retained?: boolean }) {
   const id = offer.merchant;
   const item = merchants[id];
-  const actionLabel = mode === 'link' ? '혜택 링크' : mode === 'exclude' ? '혜택 제외' : mode === 'complete' ? '연결 완료 · 상세 보기' : '상세 보기';
+  const actionLabel = used && mode !== 'exclude' ? '이용 결과 보기' : mode === 'link' ? '혜택 링크' : mode === 'exclude' ? '혜택 제외' : mode === 'complete' ? '연결 완료 · 상세 보기' : '상세 보기';
   return <div className="benefit">
     <button className="benefit-body" onClick={onClick} aria-label={`${item.name} 혜택 상세`}>
-    <Merchant id={id} /><span className="benefit-info"><span className="merchant-name">{item.name}</span><strong>{item.discount}</strong><span className="condition">{retained ? '기존 연결 유지' : `${item.minimum} 이상 결제`} · {offer.end.slice(5).replace('-', '.')}까지</span></span>
+    <Merchant id={id} /><span className="benefit-info"><span className="merchant-name">{item.name}</span><strong>{item.discount}</strong><span className="condition">{used && <span className="usage-badge">{used}</span>}{retained ? '기존 연결 유지' : `${item.minimum} 이상 결제`} · {offer.end.slice(5).replace('-', '.')}까지</span></span>
     </button>
-    <button className={`benefit-action ${unavailable ? 'complete' : mode}`} disabled={!!unavailable} onClick={onAction} aria-label={`${item.name} ${unavailable || actionLabel}`}>
-      {unavailable || null}{!unavailable && mode === 'link' && <><Icon name="plus.svg" size={16} /><span>링크</span></>}
-      {!unavailable && mode === 'complete' && <><Icon name="check-complete.svg" size={16} /><span>완료</span></>}
-      {mode === 'detail' && <><span>상세</span><Icon name="right.svg" size={16} /></>}
-      {mode === 'exclude' && '제외'}
+    <button className={`benefit-action ${used && mode !== 'exclude' ? 'detail' : unavailable ? 'complete' : mode}`} disabled={!!unavailable && !used} onClick={onAction} aria-label={`${item.name} ${used ? actionLabel : unavailable || actionLabel}`}>
+      {used && mode !== 'exclude' ? <><span>결과</span><Icon name="right.svg" size={16} /></> : <>
+        {unavailable || null}{!unavailable && mode === 'link' && <><Icon name="plus.svg" size={16} /><span>링크</span></>}
+        {!unavailable && mode === 'complete' && <><Icon name="check-complete.svg" size={16} /><span>완료</span></>}
+        {!unavailable && mode === 'detail' && <><span>상세</span><Icon name="right.svg" size={16} /></>}
+        {mode === 'exclude' && '제외'}
+      </>}
     </button>
   </div>;
 }
@@ -95,12 +98,15 @@ function App() {
   const [industryFilter, setIndustryFilter] = useState('전체');
   const [previewScale, setPreviewScale] = useState(1);
   const [originalSize, setOriginalSize] = useState(false);
+  const brandRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const resize = () => setPreviewScale(window.innerWidth > 560
-      ? Math.min(1, Math.max(0.55, (window.innerHeight - 84) / 956)) : 1);
+      ? Math.min(1, Math.max(0.35, (window.innerHeight - (brandRef.current?.offsetHeight || 106) - 60) / 956)) : 1);
     resize();
+    const observer = new ResizeObserver(resize);
+    if (brandRef.current) observer.observe(brandRef.current);
     window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
+    return () => { observer.disconnect(); window.removeEventListener('resize', resize); };
   }, []);
   const scrollRef = useRef<HTMLDivElement>(null);
   const modalOrigin = useRef<HTMLElement | null>(null);
@@ -148,12 +154,13 @@ function App() {
   const linkHeader = <div className="link-header"><img src={asset('link.svg')} width={110} height={35.02} alt="LINK" /><button className="help-button" onClick={() => go('/help')}>이용방법</button></div>;
   const resultFooter = <Button secondary onClick={results}>받은 혜택 보기</Button>;
   const summary = <div className="summary"><div><span>링크한 혜택</span><strong aria-label="링크한 혜택 개수">{count}개</strong></div><div><span>받은 할인</span><strong>{money(totalDiscount(state))}</strong></div></div>;
-  const manualRow = (c: Campaign) => <Benefit key={c.id} offer={c} unavailable={!connection(state, c.id) ? usageLabel(state, c.id) || (state.availability[c.id] === 'soldout' ? '예산 소진' : '') : ''} mode={connection(state, c.id) ? 'complete' : 'link'} onClick={() => openDetail(c.id)} onAction={connection(state, c.id) ? () => openDetail(c.id) : () => linkManual(c.id)} />;
-  const manualList = <><label className="catalog-filter">업종별 보기<select value={industryFilter} onChange={e => setIndustryFilter(e.target.value)}><option value="전체">전체 업종</option>{industries.map(industry => <option key={industry}>{industry}</option>)}</select></label>{manualOffers.length && manualOffers.some(c => industryFilter === '전체' || c.industry === industryFilter) ? industries.filter(industry => industryFilter === '전체' || industry === industryFilter).map(industry => {
+  const usageResults = (id: string) => go(`/results/${usageLabel(state, id) === '이용 완료' ? 'done' : 'pending'}?campaign=${id}`);
+  const manualRow = (c: Campaign) => <Benefit key={c.id} offer={c} used={usageLabel(state, c.id)} unavailable={!connection(state, c.id) ? usageLabel(state, c.id) || (state.availability[c.id] === 'soldout' ? '예산 소진' : '') : ''} mode={connection(state, c.id) ? 'complete' : 'link'} onClick={() => openDetail(c.id)} onAction={usageLabel(state, c.id) ? () => usageResults(c.id) : connection(state, c.id) ? () => openDetail(c.id) : () => linkManual(c.id)} />;
+  const manualList = <><label className="catalog-filter">업종별 보기<SelectField value={industryFilter} onChange={e => setIndustryFilter(e.target.value)}><option value="전체">전체 업종</option>{industries.map(industry => <option key={industry}>{industry}</option>)}</SelectField></label>{manualOffers.length && manualOffers.some(c => industryFilter === '전체' || c.industry === industryFilter) ? industries.filter(industry => industryFilter === '전체' || industry === industryFilter).map(industry => {
     const offers = manualOffers.filter(c => c.industry === industry);
     return offers.length ? <section className="benefit-category" key={industry} aria-label={industry}><h4>{industry}</h4>{offers.map(manualRow)}</section> : null;
   }) : <Note>{industryFilter === '전체' ? '지금은 직접 연결할 행사 혜택이 없어요.' : '이 업종에는 직접 연결할 혜택이 없어요. 다른 업종을 확인해 주세요.'}</Note>}</>;
-  const autoBenefits = (mode: 'detail' | 'complete' | 'exclude' = 'detail') => auto.map(l => <Benefit key={l.campaignId} offer={campaign(l.campaignId)!} mode={mode} retained={!state.enabled} onClick={() => openDetail(l.campaignId)} onAction={mode === 'exclude' ? () => openModal('exclude', l.campaignId) : () => openDetail(l.campaignId)} />);
+  const autoBenefits = (mode: 'detail' | 'complete' | 'exclude' = 'detail') => auto.map(l => <Benefit key={l.campaignId} offer={campaign(l.campaignId)!} used={usageLabel(state, l.campaignId)} mode={mode} retained={!state.enabled} onClick={() => openDetail(l.campaignId)} onAction={mode === 'exclude' ? () => openModal('exclude', l.campaignId) : usageLabel(state, l.campaignId) ? () => usageResults(l.campaignId) : () => openDetail(l.campaignId)} />);
 
   if (isMain && !state.optedIn) {
     contentClass = 'start';
@@ -206,32 +213,34 @@ function App() {
   } else if (path === '/experience' || path.startsWith('/experience/')) {
     title = '결제 체험'; contentClass = 'experience';
     content = <PaymentExperience key={path + state.date} state={state} dispatch={dispatch} requestedId={path.split('/')[2]} onSubmitted={() => go('/results/pending', true)} />;
-    footer = <><button className="button primary" type="submit" form="payment-experience" disabled={!availableCampaigns(state).length}>결제 체험하기</button><p className="footer-note">실제 결제나 청구는 발생하지 않아요.</p></>;
+    footer = <><button className="button primary" type="submit" form="payment-experience" disabled={!availableCampaigns(state).length}>이 금액으로 결제 체험</button><p className="footer-note">실제 결제나 청구는 발생하지 않아요.</p></>;
   } else if (path.startsWith('/results')) {
     title = '이용 결과';
     const requested = path.split('/')[2]; const tab = ['done', 'pending', 'failed'].includes(requested) ? requested : 'done';
-    const list = state.payments.filter(p => p.status === tab).slice().reverse();
+    const list = state.payments.filter(p => p.status === tab && (!params.get('campaign') || p.campaignId === params.get('campaign'))).slice().reverse();
+    const firstPending = tab === 'pending' ? list[0] : undefined;
+    const settle = (p: LinkState['payments'][number]) => { dispatch({ type: 'SETTLE', paymentId: p.id }); go(p.eligibleDiscount ? '/results/done' : '/results/failed', true); };
     content = <><h2>LINK 이용 결과</h2><div className="result-tabs" role="tablist" aria-label="혜택 적용 상태">{[['done', '적용 완료'], ['pending', '확인 중'], ['failed', '미적용']].map(([value, text]) => <button key={value} role="tab" aria-selected={tab === value} className={tab === value ? 'selected' : ''} onClick={() => go(`/results/${value}`, true)}>{text}</button>)}</div>
       {!state.payments.length ? <><div className="status-circle"><Icon name="gift-large.svg" size={52} /></div><h2>아직 이용 내역이 없어요</h2><p className="muted">혜택을 연결한 뒤 조건에 맞게 결제하면<br />이곳에서 적용 결과를 확인할 수 있어요.</p>{canTryPayment && <Button secondary onClick={() => experience()}>결제 체험하기</Button>}</> : !list.length ? <Note>{tab === 'pending' ? '확인 중인 결제가 없어요.' : tab === 'failed' ? '미적용된 결제가 없어요.' : '아직 적용 완료된 혜택이 없어요.'} 다른 상태의 내역도 확인해 보세요.</Note> : list.map(p => {
         const c = campaign(p.campaignId)!; const pending = p.status === 'pending'; const failed = p.status === 'failed';
-        return <section className="payment-entry" key={p.id}><div className="card result-card"><div className="result-icons"><Merchant id={c.merchant} /><Icon name={pending ? 'clock.svg' : failed ? 'info.svg' : 'check-result.svg'} size={40} /></div><h3>{pending ? '결제 내역을 확인 중이에요' : failed ? '이번 결제는 적용되지 않았어요' : `${money(p.discount)} 할인 적용`}</h3><p className="muted">{pending ? '아래 버튼을 누르면 결제 확인 과정을 체험하고 할인 결과를 볼 수 있어요.' : failed ? p.reason : `${p.mode === 'auto' ? '자동' : '직접'} LINK로 챙긴 혜택이에요.`}</p></div><Details rows={[
+        return <section className="payment-entry" key={p.id}><div className="card result-card"><div className="result-icons"><Merchant id={c.merchant} /><Icon name={pending ? 'clock.svg' : failed ? 'info.svg' : 'check-result.svg'} size={40} /></div><h3>{pending ? '결제 내역을 확인 중이에요' : failed ? '이번 결제는 적용되지 않았어요' : `${money(p.discount)} 할인 적용`}</h3><p className="muted">{pending ? '아래 버튼을 누르면 결제 확인 과정을 체험하고 할인 결과를 볼 수 있어요.' : failed ? p.reason : `${p.mode === 'auto' ? '자동' : '직접'} LINK로 챙긴 혜택이에요.`}</p></div>{pending && p.id !== firstPending?.id && <Button onClick={() => settle(p)}>이 결제의 할인 결과 확인</Button>}{failed && inPeriod(c, state.date) && !usageLabel(state, c.id) && <Button secondary onClick={() => connection(state, c.id) ? experience(c.id) : openDetail(c.id)}>{connection(state, c.id) ? '금액 바꿔 다시 체험하기' : '혜택 연결하러 가기'}</Button>}<Details rows={[
           ['이용 가맹점', merchants[c.merchant].name], ['결제금액', money(p.amount)], ['이용일', p.date.replaceAll('-', '.')], ['연결 방식', p.mode ? p.mode === 'auto' ? '자동 LINK' : '직접 LINK' : '연결 없음'],
-        ] } />{pending && <Button onClick={() => { dispatch({ type: 'SETTLE', paymentId: p.id }); go(p.eligibleDiscount ? '/results/done' : '/results/failed', true); }}>할인 결과 확인하기</Button>}<button className="text-action left" onClick={() => openDetail(c.id)}>행사 혜택 상세 ›</button></section>;
+        ] } /><button className="text-action left" onClick={() => openDetail(c.id)}>행사 혜택 상세 ›</button></section>;
       })}<Note>시연 결제 내역입니다. 실제 결제는 발생하지 않아요.</Note></>;
-    footer = <Button secondary onClick={home}>LINK 메인으로</Button>;
+    footer = <>{firstPending && <Button onClick={() => settle(firstPending)}>할인 결과 확인하기</Button>}<Button secondary onClick={home}>LINK 메인으로</Button></>;
   } else {
     content = <><h2>현재 상태에서 볼 수 없는 화면이에요</h2><p className="muted">행사와 연결 상태를 다시 확인해 주세요.</p></>;
     footer = <Button onClick={home}>LINK 메인으로</Button>;
   }
   const modalName = modalOffer ? merchants[modalOffer.merchant].name : '';
-  return <div className="preview"><section className="brand-signature" aria-label="LINK ON 소개"><LinkLogo size={190} /><p>나에게 맞는 혜택, 알아서 LINK!</p></section><div className="preview-stage" style={{ zoom: originalSize ? 1 : previewScale } as CSSProperties}><div className="phone" data-screen={path}>
+  return <div className={`preview${originalSize ? ' original-size' : ''}`}><div className="showcase"><section ref={brandRef} className="brand-signature" aria-label="LINK ON 소개"><LinkLogo size={190} /><p>나에게 맞는 혜택, 알아서 LINK!</p></section><div className="preview-stage" style={{ zoom: originalSize ? 1 : previewScale } as CSSProperties}><div className="phone" data-screen={path}>
     <div className="screen-body" inert={!!modal}><StatusBarIPhone /><nav className="navigation" aria-label="화면 이동">{!isMain ? <button className="nav-icon" onClick={back} aria-label="뒤로"><Icon name="back.svg" /></button> : <span className="nav-placeholder" />}<h1 tabIndex={-1}>{title}</h1>{!isMain ? <button className="nav-icon" onClick={home} aria-label="LINK 메인"><Icon name="close.svg" size={20} /></button> : <span className="nav-placeholder" />}</nav><main className={`content ${contentClass}`} ref={scrollRef}>{state.notice && <div className="inline-notice" role="status">{state.notice}</div>}{content}</main>{footer && <footer className="footer">{footer}</footer>}<HomeIndicator /></div>
     {modal && <ConfirmSheet returnFocus={modalOrigin.current} title={modal === 'unlink' ? '직접 LINK를 해제할까요?' : modal === 'off' ? 'LINK ON을 끌까요?' : '이 혜택을 제외할까요?'} confirm={modal === 'unlink' ? 'LINK 해제' : modal === 'off' ? '자동 연결 끄기' : `${modalName} 혜택 제외`} cancel={modal === 'unlink' ? '연결 유지하기' : modal === 'off' ? '자동 연결 유지하기' : '혜택 유지하기'} onClose={historyBack} onConfirm={() => {
       if (modal === 'unlink' && modalOffer) { dispatch({ type: 'UNLINK_MANUAL', id: modalOffer.id }); historyBack(); }
       else if (modal === 'off') { dispatch({ type: 'DISABLE' }); home(); }
       else if (modalOffer) { dispatch({ type: 'EXCLUDE', id: modalOffer.id }); go(`/excluded/${modalOffer.id}`, true); }
     }}>{modal === 'unlink' ? <>{modalName} 혜택의 연결이 해제돼요.<br />다른 혜택과 LINK ON 설정은 유지돼요.</> : modal === 'off' ? <>새 혜택의 자동 연결이 중단돼요.<br />이미 연결된 혜택은 만료일까지 유지됩니다.</> : <>{modalName} 혜택의 연결이 취소돼요.<br />이번 행사 혜택은 다시 자동 연결하지 않아요.</>}</ConfirmSheet>}
-  </div></div><div className="preview-tools" inert={!!modal}><button className="preview-size" aria-pressed={originalSize} onClick={() => setOriginalSize(value => !value)}>{originalSize ? '화면에 맞추기' : '원본 크기로 보기'}</button><button onClick={() => { dispatch({ type: 'RESET' }); setDemoReset(value => value + 1); setConsent(false); setDraft(initialState.interests); setIndustryFilter('전체'); home(); requestAnimationFrame(() => { scrollRef.current?.scrollTo(0, 0); window.scrollTo(0, 0); }); }}>다시 체험하기</button></div><DemoTools key={demoReset} blocked={!!modal} state={state} dispatch={dispatch} navigate={route => go(route)} /></div>;
+  </div></div></div><aside className="experience-tools" aria-label="체험 옵션"><div className="preview-tools" inert={!!modal}><button className="preview-size" aria-pressed={originalSize} onClick={() => setOriginalSize(value => !value)}>{originalSize ? '화면에 맞추기' : '원본 크기로 보기'}</button><button onClick={() => { dispatch({ type: 'RESET' }); setDemoReset(value => value + 1); setConsent(false); setDraft(initialState.interests); setIndustryFilter('전체'); home(); requestAnimationFrame(() => { scrollRef.current?.scrollTo(0, 0); window.scrollTo(0, 0); }); }}>다시 체험하기</button></div><DemoTools key={demoReset} blocked={!!modal} state={state} dispatch={dispatch} navigate={route => go(route)} /></aside></div>;
 }
 
 initializeNavigation();

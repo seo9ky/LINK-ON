@@ -1,3 +1,4 @@
+import { SelectField } from './FormControls';
 import { useState, type Dispatch } from 'react';
 import { availableCampaigns, connection, merchants, money, reducer, usageLabel, type Action, type LinkState } from './model';
 
@@ -24,12 +25,15 @@ export function PaymentExperience({ state, dispatch, requestedId, onSubmitted }:
       dispatch(action); onSubmitted();
     }}>
       <label htmlFor="experience-merchant">결제할 가맹점</label>
-      <select id="experience-merchant" value={id} onChange={event => {
+      <SelectField id="experience-merchant" value={id} onChange={event => {
         const c = offers.find(c => c.id === event.target.value)!;
         setId(c.id); setAmount(String(c.minimum + 1500)); setError('');
       }}>
-        {offers.map(c => <option key={c.id} value={c.id}>{merchants[c.merchant].name}{connection(state, c.id) ? ' · 연결됨' : ''}</option>)}
-      </select>
+        {[{ label: '연결된 혜택', items: offers.filter(c => connection(state, c.id) && !usageLabel(state, c.id)) },
+          { label: '이용 완료 · 확인 중', items: offers.filter(c => usageLabel(state, c.id)) },
+          { label: '연결하지 않은 혜택', items: offers.filter(c => !connection(state, c.id) && !usageLabel(state, c.id)) }]
+          .filter(group => group.items.length).map(group => <optgroup key={group.label} label={group.label}>{group.items.map(c => <option key={c.id} value={c.id}>{merchants[c.merchant].name}{usageLabel(state, c.id) ? ` · ${usageLabel(state, c.id)}` : connection(state, c.id) ? ' · 연결됨' : ''}</option>)}</optgroup>)}
+      </SelectField>
       {selected ? <div className="payment-condition">
         <strong>{money(selected.minimum)} 이상 결제 시 {money(selected.discount)} 할인</strong>
         <p className="small muted">{usageLabel(state, id) ? '이미 이용했거나 확인 중인 혜택이에요. 다시 결제해도 중복 할인되지 않아요.' : linked ? `${linked.mode === 'auto' ? '자동' : '직접'} LINK로 연결된 혜택이에요.` : '연결하지 않은 혜택이에요. 지금 결제하면 할인이 적용되지 않아요.'}</p>
