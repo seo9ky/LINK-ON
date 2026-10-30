@@ -6,7 +6,6 @@ import { industries, campaigns, merchants, campaign, availableCampaigns, reducer
 type SettingSection = 'matching' | 'date' | 'exceptions' | 'database';
 const practiceAuthReturn = new URLSearchParams(window.location.search).has('code') || new URLSearchParams(window.location.search).has('error');
 export function DemoTools({ state, dispatch, navigate, blocked = false }: { state: LinkState; dispatch: Dispatch<Action>; navigate: (route: string) => void; blocked?: boolean }) {
-  const [expanded, setExpanded] = useState(() => practiceAuthReturn || window.matchMedia('(min-width: 960px) and (orientation: landscape)').matches);
   const [section, setSection] = useState<SettingSection>(practiceAuthReturn ? 'database' : 'matching');
   const [date, setDate] = useState(state.date);
   const [limit, setLimit] = useState(String(state.limit));
@@ -21,8 +20,8 @@ export function DemoTools({ state, dispatch, navigate, blocked = false }: { stat
     const next = reducer(state, action); dispatch(action); setFeedback(next.notice || message); return next;
   };
   const sections: [SettingSection, string][] = [['matching', '맞춤 혜택 조건'], ['date', '행사 시점'], ['exceptions', '예외 상황'], ['database', '입력값 저장']];
-  return <details className="demo-tools" inert={blocked} open={expanded} onToggle={event => setExpanded(event.currentTarget.open)}>
-    <summary><span>시연 설정</span><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="m4.5 7 4.5 4.5L13.5 7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>
+  return <section className="demo-tools" inert={blocked} aria-labelledby="demo-settings-title">
+    <h2 id="demo-settings-title" className="settings-heading">시연 설정</h2>
     <div className="settings-content">
       <div className="settings-tabs" role="tablist" aria-label="시연 설정 항목">{sections.map(([key, label], index) => <button key={key} id={`setting-tab-${key}`} role="tab" aria-selected={section === key} aria-controls={`setting-panel-${key}`} tabIndex={section === key ? 0 : -1} onClick={() => { setSection(key); setFeedback(''); }} onKeyDown={event => {
         const next = event.key === 'ArrowRight' ? (index + 1) % sections.length : event.key === 'ArrowLeft' ? (index + sections.length - 1) % sections.length : event.key === 'Home' ? 0 : event.key === 'End' ? sections.length - 1 : -1;
@@ -59,5 +58,5 @@ export function DemoTools({ state, dispatch, navigate, blocked = false }: { stat
       <section className="settings-panel" id="setting-panel-database" role="tabpanel" aria-labelledby="setting-tab-database" hidden={section !== 'database'}><SupabasePractice active={section === 'database'} /></section>
       {feedback && <p className="settings-feedback" role="status" aria-live="polite">{feedback}</p>}
     </div>
-  </details>;
+  </section>;
 }

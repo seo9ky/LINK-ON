@@ -122,7 +122,6 @@ test('관심 업종 취소·저장과 다음 행사 선정', async ({ page }) =>
   await page.getByRole('button', { name: '패션 · 스타일', exact: true }).click();
   await page.getByRole('button', { name: '저장하고 혜택 확인하기' }).click();
   await expect(page.getByLabel('링크한 혜택 개수')).toHaveText('2개');
-  await page.locator('.demo-tools summary').click();
   await page.getByRole('tab', { name: '행사 시점', exact: true }).click();
   await page.getByLabel('시연 날짜', { exact: true }).fill('2026-12-01');
   await page.getByRole('button', { name: '날짜 적용하기', exact: true }).click();
@@ -134,7 +133,6 @@ test('관심 업종 취소·저장과 다음 행사 선정', async ({ page }) =>
 test('직접 연결 → 결제 → 해제 → 전표 → 할인 합계, 후속 결제는 미적용', async ({ page }) => {
   await ready(page);
   await page.getByRole('button', { name: 'GS25 혜택 링크', exact: true }).click(); await home(page);
-  await page.locator('.demo-tools summary').click();
   await page.getByRole('tab', { name: '예외 상황', exact: true }).click();
   await page.getByRole('combobox', { name: '대상 행사', exact: true }).selectOption('gs25-202611');
   await page.getByRole('button', { name: '이 조건으로 결제 체험', exact: true }).click();

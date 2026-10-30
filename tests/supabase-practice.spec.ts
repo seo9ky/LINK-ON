@@ -14,7 +14,6 @@ test.beforeEach(async ({ page }) => {
     await route.fulfill({ json: [savedRow] });
   });
   await page.goto('/');
-  await page.locator('.demo-tools > summary').click();
   await page.getByRole('tab', { name: '입력값 저장', exact: true }).click();
   await expect(page.getByRole('list', { name: '저장된 문장' })).toContainText(savedRow.input);
 });
@@ -91,7 +90,6 @@ test('모바일에서 폼이 넘치지 않고 내용과 입력 길이 제한 유
   await expect(list.locator('img')).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
   await page.reload();
-  await page.locator('.demo-tools > summary').click();
   await page.getByRole('tab', { name: '입력값 저장', exact: true }).click();
   await expect(list).toContainText(longText);
 });
@@ -120,7 +118,6 @@ test('로그아웃하면 개인 목록과 입력 내용을 지우고 새로고�
   await expect(page.getByRole('list', { name: '저장된 문장' })).toHaveCount(0);
   await expect(page.getByText(savedRow.input)).toHaveCount(0);
   await page.reload();
-  await page.locator('.demo-tools > summary').click();
   await page.getByRole('tab', { name: '입력값 저장', exact: true }).click();
   await expect(page.getByLabel('이메일', { exact: true })).toBeVisible();
   await expect(page.getByLabel('저장할 내용', { exact: true })).toHaveCount(0);

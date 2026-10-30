@@ -23,7 +23,6 @@ test('온보딩 중 새로고침은 동의로 돌아가며 다시 시작할 수 
 });
 test('확인창을 열면 폰 외부 시연 도구와 초기화도 비활성화한다', async ({ page }) => {
   await ready(page);
-  await page.locator('.demo-tools summary').click();
   await page.getByRole('button', { name: 'GS25 혜택 링크', exact: true }).click();
   await details(page);
   await page.getByRole('button', { name: '이 혜택 LINK 해제', exact: true }).click();
@@ -35,7 +34,6 @@ test('확인창을 열면 폰 외부 시연 도구와 초기화도 비활성화�
 });
 test('날짜 변경 시 결제 행사도 같은 가맹점의 현재 행사로 전환, 초기화는 입력까지 복구', async ({ page }) => {
   await ready(page); await enable(page);
-  await page.locator('.demo-tools summary').click();
   await page.getByRole('tab', { name: '예외 상황', exact: true }).click();
   await page.getByRole('combobox', { name: '대상 행사', exact: true }).selectOption('gs25-202611');
   await page.getByRole('tab', { name: '행사 시점', exact: true }).click();
@@ -45,7 +43,6 @@ test('날짜 변경 시 결제 행사도 같은 가맹점의 현재 행사로 �
   await expect(page.getByRole('combobox', { name: '대상 행사', exact: true })).toHaveValue('gs25-202612');
   await page.getByRole('checkbox', { name: '다른 할인 함께 적용', exact: true }).check();
   await page.getByRole('button', { name: '다시 체험하기', exact: true }).click();
-  await page.locator('.demo-tools summary').click();
   await page.getByRole('tab', { name: '예외 상황', exact: true }).click();
   await expect(page.getByRole('combobox', { name: '대상 행사', exact: true })).toHaveValue('starbucks-202611');
   await expect(page.getByRole('checkbox', { name: '다른 할인 함께 적용', exact: true })).not.toBeChecked();
@@ -56,7 +53,6 @@ test('날짜 변경 시 결제 행사도 같은 가맹점의 현재 행사로 �
 test('시연 설정은 키보드로 항목을 이동하고 모바일에서도 입력 상태를 보존한다', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await ready(page);
-  await page.locator('.demo-tools summary').click();
   await page.getByLabel('자동 연결 한도', { exact: true }).fill('4');
   await page.getByRole('tab', { name: '맞춤 혜택 조건', exact: true }).focus();
   await page.keyboard.press('ArrowRight');
