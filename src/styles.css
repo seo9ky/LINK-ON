@@ -108,3 +108,45 @@
 
 /* Database classroom exercise stays within the existing demo settings. */
 .practice-form{display:flex;flex-direction:column;gap:12px;min-width:0}.practice-form textarea{font:inherit;width:100%;min-height:120px;resize:vertical;border:1px solid #d7dfec;border-radius:16px;padding:14px;color:var(--ink);background:#fff}.practice-form textarea:focus-visible{outline:3px solid var(--brand-blue);outline-offset:3px}.practice-form textarea:disabled{background:var(--subtle)}.practice-error{font-size:14px;line-height:23px;color:#a01c1c}.practice-form .settings-feedback{margin-top:4px}.practice-form [hidden]{display:none}@media(max-width:560px){.settings-tabs{display:grid;grid-template-columns:1fr 1fr}}
+
+/* One shared interaction language for the app and its demo controls. */
+.showcase,.experience-tools{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;min-width:0}
+.select-field{position:relative;display:block;min-width:0;width:100%}
+.select-field select{appearance:none;-webkit-appearance:none;padding-right:54px;cursor:pointer}
+.select-indicator{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:32px;height:32px;display:grid;place-items:center;pointer-events:none;border-radius:10px;color:var(--muted);transition:background-color .15s,color .15s}
+.catalog-filter>.select-field{width:auto;max-width:75%}.catalog-filter .select-field select{width:100%;max-width:100%;padding-right:50px}
+.select-field:focus-within .select-indicator{background:var(--tint);color:var(--brand-blue)}
+input[type=date]::-webkit-calendar-picker-indicator{cursor:pointer;padding:6px;border-radius:8px;transition:background-color .15s}
+button,summary,input,select,textarea{transition:background-color .15s,border-color .15s,box-shadow .15s,filter .15s,transform .1s}
+input:active,select:active,textarea:active{border-color:var(--blue)}
+input[type=checkbox]{cursor:pointer;transition:box-shadow .15s,background-color .15s}
+button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--brand-blue);outline-offset:3px}
+.nav-icon,.text-action,.benefit-body,.toggle-hit{border-radius:12px}
+.benefit,.card,.note,.summary,.payment-condition{transition:box-shadow .15s,background-color .15s}
+.usage-badge{display:inline-block;margin-right:6px;padding:0 6px;border-radius:6px;background:var(--tint);color:var(--brand-blue);font-size:12px;line-height:20px;font-weight:600}
+@media(hover:hover) and (pointer:fine){
+  button:not(:disabled):hover,summary:hover{filter:brightness(.97);box-shadow:inset 0 0 0 999px #003cdc09}
+  .benefit:hover{background:#f0f6ff66;border-radius:16px}
+  .card:hover,.note:hover,.summary:hover,.payment-condition:hover{box-shadow:0 0 0 1px #1677ff24,0 6px 18px #003cdc08}
+  input:not(:disabled):hover,select:not(:disabled):hover,textarea:not(:disabled):hover{border-color:var(--blue);background-color:#f8fbff}
+  .select-field:has(select:not(:disabled):hover) .select-indicator{background:#e1edff;color:var(--brand-blue)}
+  input[type=date]::-webkit-calendar-picker-indicator:hover{background-color:#dceaff}
+  input[type=checkbox]:not(:disabled):hover{box-shadow:0 0 0 5px #1677ff18}
+}
+button:not(:disabled):active,summary:active{filter:brightness(.92);box-shadow:inset 0 0 0 999px #003cdc0b}
+button:not(:disabled):active{transform:scale(.985)}
+input[type=checkbox]:active{box-shadow:0 0 0 5px #1677ff24}
+@media(prefers-reduced-motion:reduce){button,summary,input,select,textarea,.select-indicator,.benefit,.card,.note,.summary,.payment-condition{transition:none}button:not(:disabled):active{transform:none}}
+@media(max-width:560px){.showcase,.experience-tools{gap:0}}
+@media(min-width:960px) and (orientation:landscape){
+  .preview{display:grid;grid-template-columns:minmax(300px,420px) minmax(380px,480px);gap:clamp(32px,5vw,72px);width:min(1072px,100%);margin:0 auto;padding:24px;align-items:start;justify-content:center}
+  .showcase{gap:12px}.brand-signature{margin:0}
+  .experience-tools{position:sticky;top:24px;align-items:stretch;gap:16px;max-height:calc(100dvh - 48px);overflow-y:auto;overflow-x:hidden;padding:4px;scrollbar-width:thin;scrollbar-color:#a8afb9 transparent}
+  .experience-tools .preview-tools{padding:0;justify-content:flex-end;gap:12px}
+  .experience-tools .demo-tools{width:100%;margin:0}
+  .experience-tools .settings-tabs{display:grid;grid-template-columns:1fr 1fr}
+  .experience-tools .settings-fields{grid-template-columns:1fr 1fr;gap:12px}
+  .experience-tools .settings-actions button{min-width:150px;font-size:14px;padding:12px 14px}
+  .experience-tools .settings-content{padding:0 20px 20px}
+  .original-size{grid-template-columns:440px minmax(380px,480px)}
+}
