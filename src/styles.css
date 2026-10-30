@@ -283,3 +283,14 @@ input[type=checkbox]:active{box-shadow:0 0 0 5px #1677ff24}
   .experience-tools .settings-heading{flex-shrink:0}
   .experience-tools .settings-content{min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#a8afb9 transparent}
 }
+
+/* Keep navigation outside the independently scrolling settings body. */
+.settings-top{padding:0 18px;flex-shrink:0}
+.settings-top .settings-tabs{margin-bottom:14px}
+.settings-content{scroll-padding-block:8px}
+.settings-view-benefits{display:none}
+@media(max-width:959px),(orientation:portrait){
+  .settings-view-benefits{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;padding:10px;margin-top:10px;border:1px solid #d7dfec;border-radius:12px;background:#fff;color:var(--brand-blue);font-size:13px;font-weight:600}
+  .settings-view-benefits:active{background:#d7e5ff}
+}
+@media(hover:hover) and (pointer:fine){.settings-view-benefits:hover{background:#e3edff}}
