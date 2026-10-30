@@ -30,6 +30,7 @@ export function useNavigation() {
     setHash(next);
   };
   const home = () => {
+    if (route() === '/') return;
     const index = entry()?.index || 0;
     if (index > 0) history.go(-index);
     else go('/', true);

@@ -89,6 +89,7 @@ function App() {
   const [state, dispatch] = useReducer(reducer, undefined, readState);
   const { hash, go, home, back: historyBack } = useNavigation();
   const [consent, setConsent] = useState(false);
+  const [demoReset, setDemoReset] = useState(0);
   const [draft, setDraft] = useState(state.interests);
   const [scale, setScale] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -123,11 +124,13 @@ function App() {
   const results = () => go('/results');
   const toggle = () => state.enabled ? openModal('off') : state.optedIn ? dispatch({ type: 'ENABLE' }) : go('/consent');
   useEffect(() => {
+    if (path === '/interests' && !state.optedIn && !consent) go('/consent', true);
     if (requestedModal && !modal) go(path, true);
     if (completed && connection(state, completed.id)?.mode !== 'manual') go(`/benefit/${completed.id}`, true);
-  }, [hash, state.connections, modal]);
+  }, [hash, state.connections, modal, state.optedIn, consent]);
   useEffect(() => { try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch { /* In-memory demo still works. */ } }, [state]);
   useEffect(() => { scrollRef.current?.scrollTo(0, 0); window.scrollTo(0, 0); document.querySelector<HTMLElement>('h1')?.focus({ preventScroll: true }); }, [path]);
+  useEffect(() => { if (state.notice) scrollRef.current?.scrollTo(0, 0); }, [state]);
   useEffect(() => { const resize = () => setScale(window.innerWidth > 560 ? Math.min(1, Math.max(0.55, (window.innerHeight - 84) / 956)) : 1); resize(); window.addEventListener('resize', resize); return () => window.removeEventListener('resize', resize); }, []);
 
   let title = 'LINK'; let content: ReactNode; let footer: ReactNode = null; let contentClass = 'standard';
@@ -168,7 +171,7 @@ function App() {
     const label = !inPeriod(c, state.date) ? (c.end < state.date ? '기간 종료' : '시작 전') : link ? link.mode === 'auto' ? '자동 LINK' : '직접 LINK' : state.excluded.includes(c.id) ? '제외 완료' : closed?.closedReason === 'unlinked' ? '해제 완료' : '연결 전';
     content = <><Pill>{label}</Pill><div className="detail-merchant"><Merchant id={c.merchant} large /><div><p className="muted">{item.name}</p><h2>{money(c.discount)} 할인</h2></div></div><p className="muted">{item.subtitle}</p><div className="card reason"><strong><Icon name="gift.svg" />{link?.mode === 'auto' ? '이 혜택을 연결한 이유' : '혜택 이용방법'}</strong><p className="muted">{link?.mode === 'auto' ? link.reason : <>결제 전에 링크하고 삼성카드로 결제하세요.<br />조건을 충족하면 혜택이 적용돼요.</>}</p></div><Details rows={[
       ['결제 조건', `한 번에 ${money(c.minimum)} 이상`], ['이용 기간', `${c.start.replaceAll('-', '.')}–${c.end.replaceAll('-', '.')}`], ['이용 횟수', '행사 기간 내 1회'], ['혜택 중복', '시연 조건: 다른 할인 적용 결제는 제외'],
-    ]} />{link && <button className="text-action left" onClick={() => openModal(link.mode === 'auto' ? 'exclude' : 'unlink', c.id)}>{link.mode === 'auto' ? '이 혜택 제외하기' : '이 혜택 LINK 해제'}</button>}{state.availability[c.id] === 'soldout' && !link && <Note>행사 예산이 소진되어 지금은 연결할 수 없어요.</Note>}<Note>시연용 행사 조건입니다. 실제 제공 조건과 다를 수 있어요.{state.excluded.includes(c.id) && !link && <><br />이번 행사의 자동 연결은 제외됐어요. 원하면 직접 연결할 수 있어요.</>}</Note></>;
+    ]} />{link && <button className="text-action left" onClick={() => openModal(link.mode === 'auto' ? 'exclude' : 'unlink', c.id)}>{link.mode === 'auto' ? '이 혜택 제외하기' : '이 혜택 LINK 해제'}</button>}{state.availability[c.id] === 'soldout' && !link && <Note>행사 예산이 소진되어 지금은 연결할 수 없어요.</Note>}<Note>시연용 행사 조건입니다. 실제 제공 조건과 다를 수 있어요.{usage && <><br />{usage === '이용 완료' ? '이미 이용한 행사 혜택이에요. 받은 혜택은 이용 결과에서 확인해 주세요.' : '먼저 접수한 결제를 확인 중이에요. 결과가 확정되면 이용 결과에서 확인해 주세요.'}</>}{state.excluded.includes(c.id) && !link && !usage && inPeriod(c, state.date) && state.availability[c.id] !== 'soldout' && <><br />이번 행사의 자동 연결은 제외됐어요. 원하면 직접 연결할 수 있어요.</>}</Note></>;
     footer = link ? <Button onClick={link.mode === 'auto' ? () => go('/manage') : home}>{link.mode === 'auto' ? '연결된 혜택 확인하기' : 'LINK 메인으로'}</Button> : <Button disabled={!inPeriod(c, state.date) || !!usage || state.availability[c.id] === 'soldout'} onClick={() => linkManual(c.id)}>{!inPeriod(c, state.date) ? '이용 기간이 아니에요' : usage || (state.availability[c.id] === 'soldout' ? '예산 소진' : '이 혜택 링크하기')}</Button>;
   } else if (completed && connection(state, completed.id)?.mode === 'manual') {
     title = '직접 고른 혜택';
@@ -210,7 +213,7 @@ function App() {
       else if (modal === 'off') { dispatch({ type: 'DISABLE' }); home(); }
       else if (modalOffer) { dispatch({ type: 'EXCLUDE', id: modalOffer.id }); go(`/excluded/${modalOffer.id}`, true); }
     }}>{modal === 'unlink' ? <>{modalName} 혜택의 연결이 해제돼요.<br />다른 혜택과 LINK ON 설정은 유지돼요.</> : modal === 'off' ? <>새 혜택의 자동 연결이 중단돼요.<br />이미 연결된 혜택은 만료일까지 유지됩니다.</> : <>{modalName} 혜택의 연결이 취소돼요.<br />이번 행사 혜택은 다시 자동 연결하지 않아요.</>}</ConfirmSheet>}
-  </div></div><div className="preview-tools"><span>LINK ON · 로컬 시연 · {state.date}</span><button onClick={() => { dispatch({ type: 'RESET' }); setConsent(false); setDraft(initialState.interests); home(); requestAnimationFrame(() => { scrollRef.current?.scrollTo(0, 0); window.scrollTo(0, 0); }); }}>처음부터 다시 보기</button></div><DemoTools state={state} dispatch={dispatch} navigate={route => go(route)} /></div>;
+  </div></div><div className="preview-tools" inert={!!modal}><span>LINK ON · 로컬 시연 · {state.date}</span><button onClick={() => { dispatch({ type: 'RESET' }); setDemoReset(value => value + 1); setConsent(false); setDraft(initialState.interests); home(); requestAnimationFrame(() => { scrollRef.current?.scrollTo(0, 0); window.scrollTo(0, 0); }); }}>처음부터 다시 보기</button></div><DemoTools key={demoReset} blocked={!!modal} state={state} dispatch={dispatch} navigate={route => go(route)} /></div>;
 }
 
 initializeNavigation();

@@ -116,3 +116,26 @@ test('v1 연결·제외는 이전, 고정 결과는 제거하고 v2 결제 이�
   assert.equal(restoreState(null).version, 2);
   assert.equal(restoreState({ ...paid, availability: null }).availability instanceof Object, true);
 });
+test('직접 연결된 맞춤 혜택을 적합한 혜택 없음으로 안내하지 않는다', () => {
+  let s = step(fresh(), 'LINK_MANUAL', { id: 'starbucks-202611' });
+  s = step(s, 'SAVE_INTERESTS', { values: ['카페'], activate: true });
+  assert.match(emptyReason(s), /이미 직접 연결/);
+  assert.equal(activeLinks(s).filter(l => l.mode === 'auto').length, 0);
+});
+test('이용 완료와 확인 중, 여러 제외 사유가 섞여도 적합성 부족으로 오안내하지 않는다', () => {
+  let s = on(['카페']);
+  s = pay(s);
+  s = step(s, 'EXCLUDE', { id: 'starbucks-202611' });
+  assert.match(emptyReason(s), /이미 이용했거나 결제를 확인 중/);
+  s = step(s, 'SAVE_INTERESTS', { values: ['카페', '온라인 쇼핑'], activate: false });
+  s = step(s, 'AVAILABILITY', { id: 'ssf-202611', value: 'soldout' });
+  assert.match(emptyReason(s), /행사 조건을 확인/);
+  assert.doesNotMatch(emptyReason(s), /업종을 확인/);
+});
+test('관심 업종 저장 후 선정 대기와 한도 0을 구분한다', () => {
+  let s = on([], { patterns: [] });
+  s = step(s, 'SAVE_INTERESTS', { values: ['카페'], activate: false });
+  assert.match(emptyReason(s), /다음 혜택 선정/);
+  s = step(s, 'CONFIGURE', { limit: 0, patterns: [] });
+  assert.match(emptyReason(s), /한도가 없어요/);
+});

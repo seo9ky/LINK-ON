@@ -1,19 +1,20 @@
 import { useState, useEffect, type Dispatch } from 'react';
-import { campaigns, merchants, reducer, type Action, type Availability, type LinkState } from './model';
+import { campaigns, merchants, campaign, availableCampaigns, reducer, type Action, type Availability, type LinkState } from './model';
 
-export function DemoTools({ state, dispatch, navigate }: { state: LinkState; dispatch: Dispatch<Action>; navigate: (route: string) => void }) {
+export function DemoTools({ state, dispatch, navigate, blocked = false }: { state: LinkState; dispatch: Dispatch<Action>; navigate: (route: string) => void; blocked?: boolean }) {
   const [date, setDate] = useState(state.date);
   const [limit, setLimit] = useState(String(state.limit));
   const [pattern, setPattern] = useState(state.patterns.join(','));
-  const [id, setId] = useState('starbucks-202611');
+  const [id, setId] = useState(() => availableCampaigns(state)[0]?.id || campaigns[0].id);
   const [amount, setAmount] = useState('6500');
   const [other, setOther] = useState(false);
   const [feedback, setFeedback] = useState('');
   useEffect(() => { setDate(state.date); setLimit(String(state.limit)); setPattern(state.patterns.join(',')); }, [state.date, state.limit, state.patterns.join(',')]);
+  useEffect(() => { setId(previous => availableCampaigns(state).find(c => c.merchant === campaign(previous)?.merchant)?.id || previous); }, [state.date]);
   const execute = (action: Action, message: string) => {
     const next = reducer(state, action); dispatch(action); setFeedback(next.notice || message); return next;
   };
-  return <details className="demo-tools"><summary>시연 도구 · 고객 앱 외부</summary>
+  return <details className="demo-tools" inert={blocked}><summary>시연 도구 · 고객 앱 외부</summary>
     <p>가상의 고객·행사·결제로 동작을 확인합니다. 실제 결제와 금융 API 연결은 없습니다.</p>
     <div className="demo-grid">
       <section><h3>맞춤 혜택 선정</h3>

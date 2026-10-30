@@ -1,6 +1,6 @@
 {
   "name": "link-on-prototype",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "LINK ON — Figma 기반 카드 혜택 연결·해제 프론트엔드 프로토타입",
   "engines": { "node": "^22.12.0 || >=24.0.0" },

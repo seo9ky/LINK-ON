@@ -43,11 +43,15 @@ export function emptyReason(s: LinkState) {
   const eligible = availableCampaigns(s).filter(c => c.autoEligible && selectionReason(s, c));
   if (!s.enabled) return '자동 연결이 꺼져 있어요. 기존 혜택은 만료일까지 유지돼요.';
   if (!availableCampaigns(s).length) return '현재 진행 중인 행사가 없어요. 새 행사를 기다려 주세요.';
+  if (!s.limit) return '현재 고객별 자동 연결 한도가 없어요. 혜택은 직접 고를 수 있어요.';
+  if (!eligible.length) return '현재 관심 업종과 시연 이용 패턴에 맞는 혜택이 없어요. 관심 업종을 확인해 보세요.';
+  if (eligible.every(c => connection(s, c.id)?.mode === 'manual')) return '맞춤 혜택은 이미 직접 연결되어 있어요. 같은 혜택을 중복 연결하지 않아요.';
+  if (eligible.every(c => used(s, c.id))) return '맞춤 행사 혜택을 이미 이용했거나 결제를 확인 중이에요. 이용 결과를 확인해 주세요.';
   if (eligible.length && eligible.every(c => s.excluded.includes(c.id))) return '맞춤 행사 혜택을 모두 제외했어요. 새 행사는 별도로 선정해요.';
   if (eligible.some(c => s.availability[c.id] === 'error')) return '일부 혜택을 연결하지 못했어요. 잠시 후 다시 확인해 주세요.';
   if (eligible.length && eligible.every(c => s.availability[c.id] === 'soldout')) return '맞춤 행사 혜택의 예산이 소진됐어요. 다른 혜택을 직접 골라 보세요.';
-  if (!s.limit) return '현재 고객별 자동 연결 한도가 없어요. 혜택은 직접 고를 수 있어요.';
-  return '현재 관심 업종과 시연 이용 패턴에 맞는 혜택이 없어요. 관심 업종을 확인해 보세요.';
+  if (eligible.some(c => !connection(s, c.id) && !used(s, c.id) && !s.excluded.includes(c.id) && (!s.availability[c.id] || s.availability[c.id] === 'available'))) return '현재 조건을 다음 혜택 선정에 반영해요. 연결된 혜택은 여기에서 확인할 수 있어요.';
+  return '현재 추가로 자동 연결할 수 있는 혜택이 없어요. 직접 연결·이용·제외 상태와 행사 조건을 확인해 주세요.';
 }
 function selectBenefits(s: LinkState): LinkState {
   if (!s.optedIn || !s.enabled) return s;
