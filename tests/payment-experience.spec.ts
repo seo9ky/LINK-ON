@@ -41,16 +41,13 @@ test('결제 체험은 최소 금액 미충족을 안내하고 같은 혜택을 
   await expect(page.getByRole('heading', { name: '1,000원 할인 적용' })).toBeVisible();
 });
 
-test('PC 확대 전후 휴대폰 비율과 첫 화면 시작 버튼을 유지한다', async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto('/');
-  await expect(page.getByRole('button', { name: 'LINK ON 시작하기', exact: true })).toBeInViewport({ ratio: 1 });
-  const before = await page.locator('.phone').boundingBox();
-  await page.getByRole('button', { name: '원본 크기로 보기' }).click();
-  const after = await page.locator('.phone').boundingBox();
-  expect(after!.height).toBeGreaterThan(before!.height);
-  expect(after!.height / after!.width).toBeCloseTo(956 / 440, 2);
-  await page.getByRole('button', { name: '화면에 맞추기' }).click();
-  const restored = await page.locator('.phone').boundingBox();
-  expect(restored!.height).toBeCloseTo(before!.height, 0);
+test('PC에서 폰 비율을 유지하며 화면 높이에 맞춘다', async ({ page }) => {
+  for (const height of [720, 900]) {
+    await page.setViewportSize({ width: 1280, height });
+    await page.goto('/');
+    await expect(page.getByRole('button', { name: 'LINK ON 시작하기', exact: true })).toBeInViewport({ ratio: 1 });
+    const phone = await page.locator('.phone').boundingBox();
+    expect(phone!.height / phone!.width).toBeCloseTo(956 / 440, 2);
+    expect(phone!.y + phone!.height).toBeLessThan(height);
+  }
 });

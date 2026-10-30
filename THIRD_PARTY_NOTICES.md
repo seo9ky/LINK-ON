@@ -15,3 +15,7 @@
 ## QR 카드
 
 `docs/assets/LINK-ON-QR.png`는 이 프로젝트의 벡터 로고·컬러와 Noto Sans KR로 제작했습니다. 연결 주소는 `https://link-on.kro.kr/`이며 추적용 매개변수는 넣지 않았습니다. QR 문양 위에는 로고나 장식을 겹치지 않았습니다.
+
+## 하단 브랜드 표시
+
+`public/assets/samsungcard.png`와 `public/assets/monimo.png`는 사용자가 첨부한 원본입니다. 로고를 변형하지 않고 하단 기반 서비스 표시에 배치했습니다.
