@@ -35,7 +35,7 @@ test('확인창을 열면 폰 외부 시연 도구와 탐색도 비활성화한�
 test('날짜를 변경하면 새 행사를 보여주고 기존 결제는 보존한다', async ({ page }) => {
   await ready(page); await enable(page);
   await page.getByRole('button', { name: '결제 체험하기', exact: true }).click();
-  await page.getByRole('button', { name: '이 금액으로 결제 체험', exact: true }).click();
+  await page.getByRole('button', { name: /원으로 결제 체험/, exact: true }).click();
   await page.getByRole('tab', { name: '행사 시점', exact: true }).click();
   await page.getByLabel('시연 날짜', { exact: true }).fill('2026-12-01');
   await page.getByRole('button', { name: '날짜 적용하기', exact: true }).click();
