@@ -1,7 +1,8 @@
+import { SupabasePractice } from './SupabasePractice';
 import { useState, useEffect, type Dispatch } from 'react';
 import { industries, campaigns, merchants, campaign, availableCampaigns, reducer, type Action, type Availability, type LinkState } from './model';
 
-type SettingSection = 'matching' | 'date' | 'exceptions';
+type SettingSection = 'matching' | 'date' | 'exceptions' | 'database';
 export function DemoTools({ state, dispatch, navigate, blocked = false }: { state: LinkState; dispatch: Dispatch<Action>; navigate: (route: string) => void; blocked?: boolean }) {
   const [section, setSection] = useState<SettingSection>('matching');
   const [date, setDate] = useState(state.date);
@@ -16,7 +17,7 @@ export function DemoTools({ state, dispatch, navigate, blocked = false }: { stat
   const execute = (action: Action, message: string) => {
     const next = reducer(state, action); dispatch(action); setFeedback(next.notice || message); return next;
   };
-  const sections: [SettingSection, string][] = [['matching', '맞춤 혜택 조건'], ['date', '행사 시점'], ['exceptions', '예외 상황']];
+  const sections: [SettingSection, string][] = [['matching', '맞춤 혜택 조건'], ['date', '행사 시점'], ['exceptions', '예외 상황'], ['database', '입력값 저장']];
   return <details className="demo-tools" inert={blocked}>
     <summary><span>시연 설정</span><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="m4.5 7 4.5 4.5L13.5 7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>
     <div className="settings-content">
@@ -53,6 +54,7 @@ export function DemoTools({ state, dispatch, navigate, blocked = false }: { stat
             <button className="settings-secondary" disabled={!state.payments.some(p => p.status === 'pending')} onClick={() => { const pending = state.payments.filter(p => p.status === 'pending'); pending.forEach(p => dispatch({ type: 'SETTLE', paymentId: p.id })); setFeedback('확인 중인 결제의 할인 결과를 반영했어요.'); navigate(pending.at(-1)?.eligibleDiscount ? '/results/done' : '/results/failed'); }}>확인 중인 결과 모두 반영</button></div>
         </div>
       </section>
+      <section className="settings-panel" id="setting-panel-database" role="tabpanel" aria-labelledby="setting-tab-database" hidden={section !== 'database'}><SupabasePractice /></section>
       {feedback && <p className="settings-feedback" role="status" aria-live="polite">{feedback}</p>}
     </div>
   </details>;
