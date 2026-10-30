@@ -30,10 +30,10 @@ test('서비스 소개는 앱 경로와 연결 상태를 보존하며 별도 창
     await expect(section).toHaveCSS('opacity','1');
   }
   await expect(page.getByRole('button',{name:'서비스 소개 닫기'})).toBeInViewport({ratio:1});
-  await page.getByRole('button',{name:'체험 화면으로 돌아가기'}).click();
+  await page.getByRole('button',{name:'체험 이어보기'}).click();
   await expect(dialog).toHaveCount(0);await expect(page).toHaveURL(url);
   await expect(page.getByRole('heading',{name:'혜택을 직접 연결했어요'})).toBeVisible();
-  await expect(page.getByRole('button',{name:'서비스 소개',exact:true})).toBeFocused();
+  await expect(page.locator('.navigation h1')).toBeFocused();
 });
 
 test('작은 화면과 동작 줄이기에서도 모든 소개 내용에 접근한다', async ({page}) => {

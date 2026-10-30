@@ -243,3 +243,15 @@ input[type=checkbox]:active{box-shadow:0 0 0 5px #1677ff24}
 }
 /* Landscape readers scroll full-width slides rather than shrinking them to screen height. */
 @media(max-height:520px) and (min-width:561px){.plan-slide{max-width:100%}}
+/* Keep the next decision visible within the existing phone frame. */
+.footer>.consent{margin:0;min-height:44px;align-items:center;gap:10px;font-size:14px;line-height:22px}
+@media(max-width:560px){
+  .phone:has(.content.consent-screen) .navigation,.phone:has(.content.experience) .navigation,.phone:has(.content.main-on) .navigation{margin-bottom:14px}
+  .content.consent-screen{gap:14px}.content.consent-screen>h2{font-size:22px;line-height:30px}
+  .content.experience{gap:12px}.content.experience>h2{font-size:22px;line-height:30px}
+  .content.experience .payment-form{gap:8px}.content.experience .payment-condition{padding:12px 14px}
+  .content.main-on{gap:8px}.content.main-on .link-header{min-height:38px}
+  .content.main-on .active-banner{padding:8px 12px}.content.main-on .active-banner p{font-size:13px;line-height:20px}
+  .content.main-on .benefit{min-height:82px}.content.main-on .benefit-info strong{font-size:18px;line-height:26px}
+  .content.main-on .condition{font-size:12px;line-height:18px}.content.main-on .summary>div{padding:6px 8px}
+}
