@@ -1,3 +1,4 @@
+import { LinkLogo } from './LinkLogo';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 export function InquiryDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -43,7 +44,7 @@ export function InquiryDialog({ open, onClose }: { open: boolean; onClose: () =>
     } finally { pending.current = false; }
   }
   return <dialog ref={dialog} className="inquiry-dialog" aria-labelledby="inquiry-title" onCancel={event => { event.preventDefault(); close(); }}>
-    <div className="inquiry-heading"><span className="inquiry-eyebrow">LINK ON</span><button type="button" className="inquiry-close" onClick={close} aria-label="문의 창 닫기"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg></button></div>
+    <div className="inquiry-heading"><LinkLogo size={128} /><button type="button" className="inquiry-close" onClick={close} aria-label="문의 창 닫기"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg></button></div>
     {status === 'sent' ? <div className="inquiry-success"><span className="inquiry-check" aria-hidden="true">✓</span><h2 id="inquiry-title">문의가 접수되었습니다.</h2><p>남겨주신 내용을 확인하겠습니다.</p><button className="inquiry-submit" onClick={close}>확인</button></div> : <>
       <h2 id="inquiry-title">문의하기</h2><p className="inquiry-intro">궁금한 점이나 의견을 남겨 주세요.</p>
       <form onSubmit={send} className="inquiry-form" aria-busy={status === 'sending'}>
