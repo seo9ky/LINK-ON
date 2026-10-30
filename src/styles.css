@@ -32,8 +32,8 @@
 .industry{padding:0 8px;white-space:nowrap;letter-spacing:-.35px}
 @media(max-width:400px){.industry-grid{grid-template-columns:1fr;gap:12px}.industry{height:50px}}
 
-/* Keep the phone readable on shorter desktop screens without shrinking its text. */
-@media(min-width:561px){.phone{height:clamp(620px,calc(100dvh - 90px),956px)}.preview{justify-content:flex-start}}
+/* Preserve the original phone proportions; scale the whole preview on desktop. */
+@media(min-width:561px){.phone{height:956px}.preview{justify-content:flex-start}}
 .catalog-filter{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;color:var(--muted)}
 .catalog-filter select{min-width:0;max-width:75%;min-height:44px;padding:8px 30px 8px 12px;border:1px solid #aab4c4;border-radius:12px;background:#fff;color:var(--ink);font:inherit}
 .catalog-filter select:focus-visible{outline:3px solid var(--brand-blue);outline-offset:3px}

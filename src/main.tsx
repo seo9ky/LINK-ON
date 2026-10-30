@@ -92,6 +92,14 @@ function App() {
   const [demoReset, setDemoReset] = useState(0);
   const [draft, setDraft] = useState(state.interests);
   const [industryFilter, setIndustryFilter] = useState('전체');
+  const [previewScale, setPreviewScale] = useState(1);
+  useEffect(() => {
+    const resize = () => setPreviewScale(window.innerWidth > 560
+      ? Math.min(1, Math.max(0.55, (window.innerHeight - 84) / 956)) : 1);
+    resize();
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
   const scrollRef = useRef<HTMLDivElement>(null);
   const modalOrigin = useRef<HTMLElement | null>(null);
   const [path, query = ''] = hash.split('?');
@@ -208,7 +216,7 @@ function App() {
     footer = <Button onClick={home}>LINK 메인으로</Button>;
   }
   const modalName = modalOffer ? merchants[modalOffer.merchant].name : '';
-  return <div className="preview"><div className="preview-stage"><div className="phone" data-screen={path}>
+  return <div className="preview"><div className="preview-stage" style={{ zoom: previewScale } as CSSProperties}><div className="phone" data-screen={path}>
     <div className="screen-body" inert={!!modal}><StatusBarIPhone /><nav className="navigation" aria-label="화면 이동">{!isMain ? <button className="nav-icon" onClick={back} aria-label="뒤로"><Icon name="back.svg" /></button> : <span className="nav-placeholder" />}<h1 tabIndex={-1}>{title}</h1>{!isMain ? <button className="nav-icon" onClick={home} aria-label="LINK 메인"><Icon name="close.svg" size={20} /></button> : <span className="nav-placeholder" />}</nav><main className={`content ${contentClass}`} ref={scrollRef}>{state.notice && <div className="inline-notice" role="status">{state.notice}</div>}{content}</main>{footer && <footer className="footer">{footer}</footer>}<HomeIndicator /></div>
     {modal && <ConfirmSheet returnFocus={modalOrigin.current} title={modal === 'unlink' ? '직접 LINK를 해제할까요?' : modal === 'off' ? 'LINK ON을 끌까요?' : '이 혜택을 제외할까요?'} confirm={modal === 'unlink' ? 'LINK 해제' : modal === 'off' ? '자동 연결 끄기' : `${modalName} 혜택 제외`} cancel={modal === 'unlink' ? '연결 유지하기' : modal === 'off' ? '자동 연결 유지하기' : '혜택 유지하기'} onClose={historyBack} onConfirm={() => {
       if (modal === 'unlink' && modalOffer) { dispatch({ type: 'UNLINK_MANUAL', id: modalOffer.id }); historyBack(); }
