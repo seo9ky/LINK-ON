@@ -5,8 +5,8 @@
 - 공개 시연: [link-on.kro.kr](https://link-on.kro.kr)
 - GitHub 저장소: [seo9ky/LINK-ON](https://github.com/seo9ky/LINK-ON)
 - 로컬 작업 폴더: `C:\Users\KDA\LINK-ON`
-- 프로토타입 수정 순서: **Figma 수정 → 프론트엔드 반영 → 동작 점검 → GitHub 커밋·푸시 → 배포 확인**
-- 직접 코드를 수정할 때: **코드 수정 → 로컬 확인 → 커밋 → GitHub에 푸시 → Vercel 배포 확인**
+- 프로토타입 수정 순서: **Figma 수정 → minseok에서 프론트엔드 반영·검증 → 미리보기 확인 → main 병합 → 운영 배포 확인**
+- 직접 코드를 수정할 때: **minseok에서 수정 → 로컬 확인 → 커밋·푸시 → 미리보기 확인 → main 병합 → 운영 배포 확인**
 
 ## 기획 자료
 
@@ -41,7 +41,7 @@ Node.js 24 LTS를 권장합니다. 실제 구현·빌드 검증 환경은 Node.j
 ## VS Code에서 열기
 
 1. GitHub 저장소의 **Code → 복사**로 주소를 복사합니다.
-2. VS Code 명령 팔레트(`Ctrl+Shift+P`)에서 **Git: Clone**을 선택하고 주소를 붙여넣습니다. 현재 PC에서는 `C:\Users\KDA\LINK-ON` 폴더를 열면 됩니다. `origin`은 `https://github.com/seo9ky/LINK-ON.git`, 작업 브랜치는 `main`이며 `origin/main`을 추적합니다.
+2. VS Code 명령 팔레트(`Ctrl+Shift+P`)에서 **Git: Clone**을 선택하고 주소를 붙여넣습니다. 현재 PC에서는 `C:\Users\KDA\LINK-ON` 폴더를 열면 됩니다. `origin`은 `https://github.com/seo9ky/LINK-ON.git`, 작업 브랜치는 `minseok`이며 `origin/minseok`을 추적합니다. `main`은 검증한 내용을 병합하는 운영 브랜치입니다.
 3. **터미널 → 작업 실행 → LINK ON: 패키지 설치**를 한 번 실행합니다.
 4. **터미널 → 작업 실행 → LINK ON: 실행**을 선택합니다. 브라우저가 열리고 수정 사항이 반영됩니다.
 5. 검사하려면 `Ctrl+Shift+B`로 **LINK ON: 빌드 검사**를 실행합니다.
@@ -60,7 +60,10 @@ VS Code에서 `C:\Users\KDA\LINK-ON`을 열고 **터미널 → 새 터미널**�
 
 ```powershell
 git status
-git pull --ff-only
+git fetch origin
+git switch minseok
+git pull --ff-only origin minseok
+git merge --ff-only origin/main
 ```
 
 `git status`에 아직 저장 이력으로 남기지 않은 수정 파일이 보이면 먼저 내용을 확인하고 커밋하거나 임시 보관한 뒤 가져옵니다. `pull`이 실패하면 메시지를 확인하며, 강제 덮어쓰기로 해결하지 않습니다. 다른 곳에서 올린 변경에 패키지 목록이나 잠금 파일(`package.json`, `package-lock.json`) 변경이 포함되어 있으면 `npm ci`도 실행합니다.
@@ -88,7 +91,7 @@ npm run test:unit
 
 ### 4. VS Code에서 GitHub에 업로드하기
 
-1. 왼쪽 **소스 제어**를 열고, 아래 상태 표시줄의 작업 브랜치가 의도한 브랜치인지 확인합니다. 공개 사이트에 바로 반영하는 기본 브랜치는 `main`입니다.
+1. 왼쪽 **소스 제어**를 열고, 아래 상태 표시줄의 작업 브랜치가 `minseok`인지 확인합니다. `main`에서 직접 수정하지 않습니다.
 2. 변경된 파일을 눌러 차이를 확인합니다.
 3. 올릴 파일 옆의 **＋**를 눌러 스테이징합니다(이번 저장 이력에 포함할 파일 선택).
 4. `혜택 안내 문구 수정`처럼 변경 내용을 메시지로 입력하고 **커밋(Commit)**합니다.
@@ -98,7 +101,8 @@ npm run test:unit
 | --- | --- | --- |
 | 파일 저장(Ctrl+S) | 내 컴퓨터의 작업 파일 | 반영되지 않음 |
 | 커밋(Commit) | 내 컴퓨터의 Git 변경 이력 | 반영되지 않음 |
-| 푸시(Push) | GitHub 저장소 | 운영 브랜치이면 Vercel 배포 시작 |
+| minseok에 푸시(Push) | GitHub 작업 브랜치 | 미리보기 배포만 시작 |
+| minseok → main PR 병합 | GitHub 운영 브랜치 | Vercel 운영 배포 시작 |
 | 운영 배포 성공 | Vercel | `link-on.kro.kr`에 반영 |
 
 터미널을 선호하면 아래 순서로 실행할 수도 있습니다. `git add`에는 이번에 올릴 실제 파일 경로를 지정합니다. 다음은 README만 수정한 경우의 예시입니다.
@@ -108,18 +112,42 @@ git status
 git diff -- README.md
 git add README.md
 git commit -m "docs: 실행 및 배포 안내 정리"
-git push
+git push origin minseok
 ```
 
-### 5. Vercel에서 배포 확인하기
+### 5. 미리보기 확인 후 main에 병합하기
+
+1. Vercel의 **link-on → Deployments**에서 방금 올린 `minseok` 커밋의 **Preview / Ready**를 확인합니다.
+2. [minseok 미리보기](https://link-on-git-minseok-seo9ky.vercel.app)에서 변경한 화면과 버튼 흐름을 확인합니다.
+3. GitHub의 **Pull requests → New pull request**에서 **base: main / compare: minseok**을 선택합니다.
+4. 변경 파일과 검사 결과를 확인해 PR을 만들고, 문제가 없으면 **Merge pull request → Confirm merge**로 병합합니다. 계속 사용할 `minseok` 브랜치는 삭제하지 않습니다.
+
+### 6. Vercel에서 운영 배포 확인하기
 
 1. Vercel의 **link-on 프로젝트 → Deployments**를 엽니다.
-2. 방금 올린 커밋 메시지·커밋 번호와 일치하는 배포를 찾습니다.
+2. 방금 병합한 `main` 커밋 메시지·커밋 번호와 일치하는 배포를 찾습니다.
 3. **Production** 배포인지 확인합니다. `Building`은 준비 중, `Ready`는 완료, `Error`는 실패입니다.
 4. 최신 운영 배포가 `Ready`가 되면 [공개 시연 화면](https://link-on.kro.kr)을 열어 변경 내용과 버튼 동작을 확인합니다.
 5. 이전 화면이 남아 보이면 **Ctrl+Shift+R**로 새로고침합니다.
 
-`Ready`여도 **Preview** 배포이면 운영 주소에 반영된 것은 아닙니다. 큰 변경은 `feature/변경이름` 같은 별도 브랜치에 푸시하고, Vercel에서 생성한 미리보기 주소로 먼저 확인한 다음 `main`에 합칩니다.
+`Ready`여도 **Preview** 배포이면 운영 주소에 반영된 것은 아닙니다. 변경 크기와 관계없이 `minseok`에서 먼저 확인한 다음 `main`에 병합합니다.
+
+### 7. 병합 후 로컬과 작업 브랜치 맞추기
+
+미완료 변경이 없는지 `git status`로 확인한 뒤 실행합니다.
+
+```powershell
+git fetch origin
+git switch main
+git merge --ff-only origin/main
+git switch minseok
+git merge --ff-only origin/minseok
+git merge --ff-only main
+git push origin minseok
+git status
+```
+
+마지막에는 VS Code의 작업 브랜치가 `minseok`으로 남습니다. 명령이 실패하면 다음 단계로 진행하지 말고 변경 내용을 확인합니다. 별도 작업 때문에 브랜치가 갈라진 경우 강제 푸시나 초기화 대신 차이를 검토해 병합합니다.
 
 ### 업데이트가 반영되지 않을 때
 
