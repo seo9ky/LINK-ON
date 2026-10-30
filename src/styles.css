@@ -197,3 +197,18 @@ input[type=checkbox]:active{box-shadow:0 0 0 5px #1677ff24}
 @media(max-width:560px){.inquiry-dialog{padding:22px}.inquiry-dialog h2{font-size:22px;line-height:32px}}
 
 @media(max-width:560px){.settings-panel input,.settings-panel select{font-size:16px}.inquiry-dialog{padding:22px}.inquiry-dialog h2{font-size:23px}}
+
+/* The plan is a continuous eight-slide document, separate from app state. */
+.plan-viewer{width:min(1440px,calc(100vw - 40px));height:calc(100dvh - 40px);max-width:none;max-height:none;padding:0;border:1px solid var(--line);border-radius:20px;background:#f4f6fa;color:var(--ink);overflow:hidden;box-shadow:0 24px 80px #14213d33}
+.plan-viewer[open]{display:flex;flex-direction:column}.plan-viewer::backdrop{background:#17203380;backdrop-filter:blur(3px)}
+.plan-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 24px;flex-shrink:0;border-bottom:1px solid var(--line);background:#fff}
+.plan-header h2{font-size:20px;line-height:28px;letter-spacing:-.3px}.plan-header p{font-size:13px;line-height:22px;color:var(--muted);margin-top:2px}
+.plan-close{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 12px;border-radius:12px;color:var(--muted);font-size:14px;flex-shrink:0}
+.plan-scroll{overflow:auto;overscroll-behavior:contain;padding:24px;scrollbar-width:thin;scrollbar-color:#a8afb9 transparent;min-height:0;outline-offset:-3px}
+.plan-slide{margin:0 auto 28px;max-width:min(1280px,calc((100dvh - 210px) * 16 / 9));position:relative}.plan-slide:last-child{margin-bottom:0}
+.plan-slide figcaption{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:var(--muted);font-size:13px;line-height:22px}.plan-slide figcaption span:last-child{white-space:nowrap;font-variant-numeric:tabular-nums}
+.plan-slide img{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#fff;border:1px solid #e2e7ef;box-shadow:0 4px 16px #1b2c4210}
+@media(hover:hover) and (pointer:fine){.plan-close:hover{background:var(--tint);color:var(--brand-blue)}}
+@media(max-width:560px){.plan-viewer{width:100%;height:100dvh;margin:0;border:0;border-radius:0}.plan-header{padding:12px 16px}.plan-header h2{font-size:18px;line-height:26px}.plan-header p{font-size:12px}.plan-scroll{padding:16px 12px}.plan-slide{margin-bottom:22px}.plan-slide figcaption{font-size:12px}.plan-close{padding:0 8px}}
+
+@media(max-width:560px){.plan-slide{max-width:100%}}
