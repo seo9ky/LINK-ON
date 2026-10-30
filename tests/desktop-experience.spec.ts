@@ -36,4 +36,11 @@ test('앱 버튼의 호버·누름 피드백과 화면 이동이 함께 작동�
   await expect.poll(() => start.evaluate(el => getComputedStyle(el).transform)).not.toBe('none');
   await page.mouse.up();
   await expect(page.getByRole('heading', { name: 'LINK ON 시작', exact: true })).toBeVisible();
+  const consent = page.getByRole('checkbox', { name: '[필수] 자동 LINK 이용에 동의합니다.', exact: true });
+  await consent.check();
+  await page.mouse.move(0, 0);
+  await expect(consent).toHaveCSS('background-color', 'rgb(22, 119, 255)');
+  await consent.hover();
+  await expect(consent).toHaveCSS('background-color', 'rgb(22, 119, 255)');
+  await expect(consent).toBeChecked();
 });
