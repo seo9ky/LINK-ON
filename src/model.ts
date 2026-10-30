@@ -56,7 +56,7 @@ export const usageLabel = (s: LinkState, id: string) => s.payments.some(p => p.c
 const used = (s: LinkState, id: string) => !!usageLabel(s, id);
 export function selectionReason(s: LinkState, c: Campaign) {
   const selected = s.interests.includes(c.industry), pattern = s.patterns.includes(c.industry);
-  return selected && pattern ? `선택한 ${c.industry} 업종과 이용 패턴을 함께 참고했어요.` : selected ? `관심 업종으로 선택한 ${c.industry} 혜택이에요.` : pattern ? `${c.industry} 이용 패턴을 참고했어요.` : '';
+  return selected && pattern ? `관심 업종과 이용 패턴에 맞는 ${c.industry} 혜택이에요.` : selected ? `관심 업종으로 선택한 ${c.industry} 혜택이에요.` : pattern ? `${c.industry} 이용 패턴을 참고했어요.` : '';
 }
 export function emptyReason(s: LinkState) {
   const eligible = availableCampaigns(s).filter(c => c.autoEligible && selectionReason(s, c));

@@ -140,12 +140,12 @@ test('직접 연결 → 결제 → 해제 → 전표 → 할인 합계, 후속 �
   await home(page); await details(page);
   await page.getByRole('button', { name: '이 혜택 LINK 해제', exact: true }).click();
   await page.getByRole('button', { name: 'LINK 해제', exact: true }).click();
-  await page.getByRole('button', { name: '확인 중 결제 전표 접수', exact: true }).click();
+  await page.getByRole('button', { name: '결제 확인 일괄 완료', exact: true }).click();
   await expect(page.getByRole('heading', { name: '1,000원 혜택 적용' })).toBeVisible();
   await expect(page.locator('.payment-entry')).toContainText('직접 LINK');
   await home(page); await expect(page.locator('.summary')).toContainText('1,000원');
   await page.getByRole('button', { name: '시연 결제 접수', exact: true }).click();
-  await page.getByRole('button', { name: '확인 중 결제 전표 접수', exact: true }).click();
+  await page.getByRole('button', { name: '결제 확인 일괄 완료', exact: true }).click();
   await expect(page.locator('.payment-entry')).toContainText('결제 전에 연결된 혜택이 아니에요.');
   await page.reload();
   await page.getByRole('tab', { name: '적용 완료', exact: true }).click();
