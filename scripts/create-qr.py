@@ -41,6 +41,7 @@ m=qr.get_matrix();n=len(m);unit=25;startx=(W-n*unit)/2;starty=880-n*unit/2
 ink='#292B30'
 cyan='#00AEF3'
 pink='#EF028D'
+finder_ring='#94218C'
 
 # Keep the full four-module quiet zone inside the fine neutral frame.
 pad=14
@@ -59,7 +60,7 @@ for row,line in enumerate(m):
 for row,col in finders:
  x,y=(startx+col*unit)*S,(starty+row*unit)*S
  accent=pink if (row,col)==(4,n-11) else cyan
- for inset,fill,radius in ((0,accent,.55),(1,'white',.3),(2,accent,.15)):
+ for inset,fill,radius in ((0,finder_ring,.55),(1,'white',.3),(2,accent,.15)):
   d.rounded_rectangle((x+inset*unit*S,y+inset*unit*S,
                        x+(7-inset)*unit*S-1,y+(7-inset)*unit*S-1),
                       radius=radius*unit*S,fill=fill)
