@@ -4,6 +4,7 @@ import { initialState, industries, merchants, campaigns, campaign, availableCamp
 import { PaymentExperience } from './PaymentExperience';
 import { SelectField } from './FormControls';
 import { DemoTools } from './DemoTools';
+import { InquiryDialog } from './InquiryDialog';
 import { initializeNavigation, useNavigation } from './navigation';
 import './styles.css';
 
@@ -93,16 +94,15 @@ function App() {
   const [state, dispatch] = useReducer(reducer, undefined, readState);
   const { hash, go, home, back: historyBack } = useNavigation();
   const [consent, setConsent] = useState(false);
-  const [demoReset, setDemoReset] = useState(0);
+  const [inquiryOpen, setInquiryOpen] = useState(false);
   const [draft, setDraft] = useState(state.interests);
   const [industryFilter, setIndustryFilter] = useState('전체');
   const [previewScale, setPreviewScale] = useState(1);
-  const [originalSize, setOriginalSize] = useState(false);
   const brandRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const resize = () => {
       const threeColumns = window.matchMedia('(min-width: 1200px) and (orientation: landscape)').matches;
-      const reservedHeight = threeColumns ? 108 : (brandRef.current?.offsetHeight || 106) + 118;
+      const reservedHeight = threeColumns ? 144 : (brandRef.current?.offsetHeight || 106) + 156;
       setPreviewScale(window.innerWidth > 560
         ? Math.min(threeColumns ? 0.94 : 1, Math.max(0.35, (window.innerHeight - reservedHeight) / 956)) : 1);
     };
@@ -178,7 +178,7 @@ function App() {
     footer = <><div className="quick-actions"><Button secondary onClick={() => go('/manage')}>자동 LINK 관리</Button><Button secondary onClick={results}>이용 결과</Button></div><Button secondary onClick={openInterests}>관심 업종 확인하기</Button></>;
   } else if (isMain) {
     contentClass = 'main-on';
-    content = <>{linkHeader}{summary}<div className="active-banner"><div><LinkLogo size={128} /><p className="small muted">고객님께 맞는 혜택 {auto.length}개를 연결했어요.</p></div><Toggle checked={state.enabled} onClick={toggle} /></div><div className="section-heading"><h3>자동으로 연결된 혜택</h3><button className="text-action" onClick={() => go('/manage')}>관리 ›</button></div>{autoBenefits()}<h3>직접 고르는 혜택</h3>{manualList}</>;
+    content = <>{linkHeader}{summary}<div className="active-banner"><div><LinkLogo size={128} /><p className="small muted">고객님께 맞는 혜택 {auto.length}개를 연결했어요.</p></div><Toggle checked={state.enabled} onClick={toggle} /></div><div className="section-heading"><h3>자동으로 연결된 혜택</h3><button className="text-action inline-nav" onClick={() => go('/manage')}><span>관리</span><Icon name="right.svg" size={16} /></button></div>{autoBenefits()}<h3>직접 고르는 혜택</h3>{manualList}</>;
     footer = <>{canTryPayment && <Button onClick={() => experience()}>결제 체험하기</Button>}{resultFooter}</>;
   } else if (path === '/consent' || path === '/help') {
     const help = path === '/help'; title = help ? 'LINK 이용방법' : 'LINK ON 시작';
@@ -237,14 +237,19 @@ function App() {
     footer = <Button onClick={home}>LINK 메인으로</Button>;
   }
   const modalName = modalOffer ? merchants[modalOffer.merchant].name : '';
-  return <div className={`preview${originalSize ? ' original-size' : ''}`}><div className="showcase"><section ref={brandRef} className="brand-signature" aria-label="LINK ON 소개"><LinkLogo size={190} /><p>나에게 맞는 혜택, 알아서 LINK!</p></section><div className="phone-column"><div className="preview-stage" style={{ zoom: originalSize ? 1 : previewScale } as CSSProperties}><div className="phone" data-screen={path}>
+  return <><div className="site-shell" inert={inquiryOpen}>
+    <header className="site-header" inert={!!modal}><a href="#/" onClick={event => { event.preventDefault(); home(); }} aria-label="LINK ON 홈"><LinkLogo size={128} /></a><nav aria-label="사이트 메뉴"><button onClick={() => go('/help')}>서비스 소개</button><a href="https://github.com/seo9ky/LINK-ON/blob/main/docs/reference/LINK_ON_Detailed_Plan.pdf" target="_blank" rel="noreferrer">기획서 <span aria-hidden="true">↗</span></a></nav></header>
+    <div className="preview"><div className="showcase"><section ref={brandRef} className="brand-signature" aria-label="LINK ON 소개"><LinkLogo size={190} /><p>나에게 맞는 혜택, 알아서 LINK!</p></section><div className="phone-column"><div className="preview-stage" style={{ zoom: previewScale } as CSSProperties}><div className="phone" data-screen={path}>
     <div className="screen-body" inert={!!modal}><StatusBarIPhone /><nav className="navigation" aria-label="화면 이동">{!isMain ? <button className="nav-icon" onClick={back} aria-label="뒤로"><Icon name="back.svg" /></button> : <span className="nav-placeholder" />}<h1 tabIndex={-1}>{title}</h1>{!isMain ? <button className="nav-icon" onClick={home} aria-label="LINK 메인"><Icon name="close.svg" size={20} /></button> : <span className="nav-placeholder" />}</nav><main className={`content ${contentClass}`} ref={scrollRef}>{state.notice && <div className="inline-notice" role="status">{state.notice}</div>}{content}</main>{footer && <footer className="footer">{footer}</footer>}<HomeIndicator /></div>
     {modal && <ConfirmSheet returnFocus={modalOrigin.current} title={modal === 'unlink' ? '직접 LINK를 해제할까요?' : modal === 'off' ? 'LINK ON을 끌까요?' : '이 혜택을 제외할까요?'} confirm={modal === 'unlink' ? 'LINK 해제' : modal === 'off' ? '자동 연결 끄기' : `${modalName} 혜택 제외`} cancel={modal === 'unlink' ? '연결 유지하기' : modal === 'off' ? '자동 연결 유지하기' : '혜택 유지하기'} onClose={historyBack} onConfirm={() => {
       if (modal === 'unlink' && modalOffer) { dispatch({ type: 'UNLINK_MANUAL', id: modalOffer.id }); historyBack(); }
       else if (modal === 'off') { dispatch({ type: 'DISABLE' }); home(); }
       else if (modalOffer) { dispatch({ type: 'EXCLUDE', id: modalOffer.id }); go(`/excluded/${modalOffer.id}`, true); }
     }}>{modal === 'unlink' ? <>{modalName} 혜택의 연결이 해제돼요.<br />다른 혜택과 LINK ON 설정은 유지돼요.</> : modal === 'off' ? <>새 혜택의 자동 연결이 중단돼요.<br />이미 연결된 혜택은 만료일까지 유지됩니다.</> : <>{modalName} 혜택의 연결이 취소돼요.<br />이번 행사 혜택은 다시 자동 연결하지 않아요.</>}</ConfirmSheet>}
-  </div></div><div className="preview-tools" inert={!!modal}><button className="preview-size" aria-pressed={originalSize} onClick={() => setOriginalSize(value => !value)}>{originalSize ? '화면에 맞추기' : '원본 크기로 보기'}</button><button onClick={() => { dispatch({ type: 'RESET' }); setDemoReset(value => value + 1); setConsent(false); setDraft(initialState.interests); setIndustryFilter('전체'); home(); requestAnimationFrame(() => { scrollRef.current?.scrollTo(0, 0); window.scrollTo(0, 0); }); }}>다시 체험하기</button></div></div></div><aside className="experience-tools" aria-label="체험 옵션"><DemoTools key={demoReset} blocked={!!modal} state={state} dispatch={dispatch} navigate={route => go(route)} /></aside></div>;
+  </div></div></div></div><aside className="experience-tools" aria-label="체험 옵션"><DemoTools blocked={!!modal} state={state} dispatch={dispatch} navigate={route => go(route)} /></aside></div>
+    <footer className="site-footer" inert={!!modal}><button className="contact-button" onClick={() => setInquiryOpen(true)}><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6 3V6a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>문의하기</button><div className="service-brands"><span>기반 서비스</span><img src="/assets/samsungcard.png" alt="삼성카드" /><img src="/assets/monimo.png" alt="모니모" /></div></footer>
+  </div><InquiryDialog open={inquiryOpen} onClose={() => setInquiryOpen(false)} /></>;
+
 }
 
 initializeNavigation();
