@@ -21,9 +21,9 @@ export function ScrollDocument({ title, subtitle, label, closeLabel, className =
         observer?.unobserve(entry.target);
         if (motion.matches) return;
         const animation = entry.target.animate([
-          { opacity: 0.35, transform: 'translateY(20px)' },
+          { opacity: 0.72, transform: 'translateY(8px)' },
           { opacity: 1, transform: 'translateY(0)' },
-        ], { duration: 520, easing: 'cubic-bezier(.22,1,.36,1)' });
+        ], { duration: 360, easing: 'cubic-bezier(.22,1,.36,1)' });
         animations.add(animation);
         animation.onfinish = () => animations.delete(animation);
       });
