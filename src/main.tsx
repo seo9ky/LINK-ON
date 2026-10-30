@@ -100,8 +100,12 @@ function App() {
   const [originalSize, setOriginalSize] = useState(false);
   const brandRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    const resize = () => setPreviewScale(window.innerWidth > 560
-      ? Math.min(1, Math.max(0.35, (window.innerHeight - (brandRef.current?.offsetHeight || 106) - 60) / 956)) : 1);
+    const resize = () => {
+      const threeColumns = window.matchMedia('(min-width: 1200px) and (orientation: landscape)').matches;
+      const reservedHeight = threeColumns ? 48 : (brandRef.current?.offsetHeight || 106) + 60;
+      setPreviewScale(window.innerWidth > 560
+        ? Math.min(1, Math.max(0.35, (window.innerHeight - reservedHeight) / 956)) : 1);
+    };
     resize();
     const observer = new ResizeObserver(resize);
     if (brandRef.current) observer.observe(brandRef.current);
@@ -164,7 +168,7 @@ function App() {
 
   if (isMain && !state.optedIn) {
     contentClass = 'start';
-    content = <><div className="entry-heading"><span>LINK ON 서비스 체험</span><button className="help-button" onClick={() => go('/help')}>이용방법</button></div><section className="intro"><LinkLogo size={190} /><h2>나에게 맞는 혜택,<br />알아서 LINK!</h2><p className="intro-description">맞는 혜택은 자동으로,<br />나머지는 직접 골라요.</p><ol className="journey" aria-label="체험 순서"><li><b>1</b>관심 업종 선택</li><li><b>2</b>혜택 연결</li><li><b>3</b>결제 체험</li></ol></section>{count > 0 || state.payments.length ? <>{summary}<button className="text-action left" onClick={results}>받은 혜택 보기 ›</button>{canTryPayment && <Button secondary onClick={() => experience()}>결제 체험하기</Button>}</> : <span className="sr-only" aria-label="링크한 혜택 개수">0개</span>}<div className="catalog-intro"><h3>직접 고르는 혜택</h3><p className="small muted">원하는 혜택을 결제 전에 연결하세요.</p></div>{manualList}</>;
+    content = <><div className="entry-heading"><LinkLogo size={170} /><button className="help-button" onClick={() => go('/help')}>이용방법</button></div><section className="intro"><h2>맞춤 혜택은 자동으로,<br />나머지는 직접 골라요.</h2><ol className="journey" aria-label="체험 순서"><li><b>1</b>관심 업종</li><li><b>2</b>혜택 연결</li><li><b>3</b>결제 체험</li></ol></section>{count > 0 || state.payments.length ? <>{summary}<button className="text-action left" onClick={results}>받은 혜택 보기 ›</button>{canTryPayment && <Button secondary onClick={() => experience()}>결제 체험하기</Button>}</> : <span className="sr-only" aria-label="링크한 혜택 개수">0개</span>}<div className="catalog-intro"><h3>직접 고르는 혜택</h3></div>{manualList}</>;
     footer = <><Button onClick={() => { setConsent(false); go('/consent'); }}>LINK ON 시작하기</Button><p className="footer-note">서비스 체험용 화면 · 실제 결제 없음</p></>;
   } else if (isMain && !state.enabled) {
     content = <><LinkLogo size={180} /><h2>자동 연결을 껐어요</h2><p className="muted">새 혜택은 자동 연결되지 않아요.<br />이미 연결된 혜택은 만료일까지 이용할 수 있어요.</p><h3>연결된 혜택</h3>{autoBenefits('complete')}{manualOffers.filter(c => connection(state, c.id)).map(manualRow)}{count === 0 && <Note>현재 연결된 혜택이 없어요. 다른 혜택은 직접 고를 수 있어요.</Note>}</>;
