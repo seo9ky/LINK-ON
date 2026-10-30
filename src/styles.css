@@ -102,3 +102,6 @@
 .settings-check input{width:20px;height:20px;min-height:20px;flex-shrink:0;accent-color:var(--brand-blue)}
 .settings-feedback{padding:12px 14px;margin-top:20px;background:var(--tint);border-radius:12px;font-size:14px;line-height:23px;color:var(--brand-blue)}
 @media(max-width:560px){.brand-signature{margin-top:24px;margin-bottom:24px}.brand-signature p{font-size:16px}.demo-tools[open]>summary{padding:18px}.settings-content{padding:0 18px 20px}.settings-fields{grid-template-columns:1fr}.settings-tabs button{font-size:13px}.demo-tools{margin-top:0;margin-bottom:28px}.preview-tools{padding-top:0}}
+
+/* Database classroom exercise stays within the existing demo settings. */
+.practice-form{display:flex;flex-direction:column;gap:12px;min-width:0}.practice-form textarea{font:inherit;width:100%;min-height:120px;resize:vertical;border:1px solid #aab4c4;border-radius:12px;padding:12px;color:var(--ink);background:#fff}.practice-form textarea:focus-visible{outline:3px solid var(--brand-blue);outline-offset:3px}.practice-form textarea:disabled{background:var(--subtle)}.practice-error{font-size:14px;line-height:23px;color:#a01c1c}.practice-form .settings-feedback{margin-top:4px}.practice-form [hidden]{display:none}@media(max-width:560px){.settings-tabs{display:grid;grid-template-columns:1fr 1fr}}
