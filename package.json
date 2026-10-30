@@ -1,6 +1,6 @@
 {
   "name": "link-on-prototype",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "LINK ON — Figma 기반 카드 혜택 연결·해제 프론트엔드 프로토타입",
   "engines": { "node": "^22.12.0 || >=24.0.0" },
@@ -10,6 +10,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "playwright test",
+    "test:unit": "node --test tests/model.test.mjs",
     "test:install": "playwright install chromium"
   },
   "dependencies": { "react": "^19.2.0", "react-dom": "^19.2.0" },

@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState, useReducer, type ReactNode, type CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
-import { initialState, industries, merchants, readState, reducer, storageKey, type AutoId, type MerchantId } from './model';
+import { initialState, industries, merchants, campaigns, campaign, availableCampaigns, connection, activeLinks, resolveCampaign, inPeriod, usageLabel, emptyReason, money, totalDiscount, readState, reducer, storageKey, type Campaign, type MerchantId } from './model';
+import { DemoTools } from './DemoTools';
 import { initializeNavigation, useNavigation } from './navigation';
 import './styles.css';
 
@@ -32,16 +33,17 @@ function Pill({ children }: { children: ReactNode }) { return <span className="p
 function Merchant({ id, large = false }: { id: MerchantId; large?: boolean }) {
   return <img className={`merchant ${id} ${large ? 'large' : ''}`} src={asset(merchants[id].image)} alt="" />;
 }
-function Benefit({ id, mode, onClick, onAction = onClick, retained = false }: { id: MerchantId; mode: 'link' | 'complete' | 'detail' | 'exclude'; onClick: () => void; onAction?: () => void; retained?: boolean }) {
+function Benefit({ offer, mode, onClick, onAction = onClick, retained = false, unavailable = '' }: { unavailable?: string; offer: Campaign; mode: 'link' | 'complete' | 'detail' | 'exclude'; onClick: () => void; onAction?: () => void; retained?: boolean }) {
+  const id = offer.merchant;
   const item = merchants[id];
   const actionLabel = mode === 'link' ? '혜택 링크' : mode === 'exclude' ? '혜택 제외' : mode === 'complete' ? '연결 완료 · 상세 보기' : '상세 보기';
   return <div className="benefit">
     <button className="benefit-body" onClick={onClick} aria-label={`${item.name} 혜택 상세`}>
-    <Merchant id={id} /><span className="benefit-info"><span className="merchant-name">{item.name}</span><strong>{item.discount}</strong><span className="condition">{retained ? '기존 연결 유지' : `${item.minimum} 이상 결제`} · 11.30까지</span></span>
+    <Merchant id={id} /><span className="benefit-info"><span className="merchant-name">{item.name}</span><strong>{item.discount}</strong><span className="condition">{retained ? '기존 연결 유지' : `${item.minimum} 이상 결제`} · {offer.end.slice(5).replace('-', '.')}까지</span></span>
     </button>
-    <button className={`benefit-action ${mode}`} onClick={onAction} aria-label={`${item.name} ${actionLabel}`}>
-      {mode === 'link' && <><Icon name="plus.svg" size={16} /><span>링크</span></>}
-      {mode === 'complete' && <><Icon name="check-complete.svg" size={16} /><span>완료</span></>}
+    <button className={`benefit-action ${unavailable ? 'complete' : mode}`} disabled={!!unavailable} onClick={onAction} aria-label={`${item.name} ${unavailable || actionLabel}`}>
+      {unavailable || null}{!unavailable && mode === 'link' && <><Icon name="plus.svg" size={16} /><span>링크</span></>}
+      {!unavailable && mode === 'complete' && <><Icon name="check-complete.svg" size={16} /><span>완료</span></>}
       {mode === 'detail' && <><span>상세</span><Icon name="right.svg" size={16} /></>}
       {mode === 'exclude' && '제외'}
     </button>
@@ -93,48 +95,62 @@ function App() {
   const modalOrigin = useRef<HTMLElement | null>(null);
   const [path, query = ''] = hash.split('?');
   const params = new URLSearchParams(query);
+  const modalOffer = campaign(params.get('id') || '');
+  const modalLink = modalOffer && connection(state, modalOffer.id);
   const requestedModal = params.get('confirm');
-  const modal = requestedModal === 'unlink' ? (state.manualLinked ? requestedModal : null)
-    : requestedModal === 'off' ? (state.enabled ? requestedModal : null)
-    : requestedModal === 'exclude-starbucks' ? (state.linkedAuto.includes('starbucks') ? requestedModal : null)
-    : requestedModal === 'exclude-ssf' ? (state.linkedAuto.includes('ssf') ? requestedModal : null) : null;
-  const auto = state.linkedAuto;
-  const count = auto.length + Number(state.manualLinked);
-  const back = () => path === '/linked' ? home() : historyBack();
-  const closeModal = historyBack;
-  const openModal = (kind: string) => { modalOrigin.current = document.activeElement as HTMLElement | null; window.scrollTo(0, 0); go(`${path}?confirm=${kind}`); };
-  const openDetail = (id: MerchantId) => go(`/benefit/${id}`, path === '/linked');
-  const linkManual = () => { dispatch({ type: 'LINK_MANUAL' }); go('/linked', path === '/benefit/gs25'); };
+  const modal = requestedModal === 'off' && state.enabled ? 'off'
+    : requestedModal === 'unlink' && modalLink?.mode === 'manual' ? 'unlink'
+    : requestedModal === 'exclude' && modalLink?.mode === 'auto' ? 'exclude' : null;
+  const auto = activeLinks(state).filter(l => l.mode === 'auto');
+  const manualOffers = availableCampaigns(state).filter(c => connection(state, c.id)?.mode !== 'auto');
+  const count = activeLinks(state).length;
+  const isMain = path === '/';
+  const detailOffer = path.startsWith('/benefit/') ? resolveCampaign(state, path.split('/')[2]) : undefined;
+  const completed = path.startsWith('/linked/') ? campaign(path.split('/')[2]) : undefined;
+  const back = () => path.startsWith('/linked/') ? home() : historyBack();
+  const openModal = (kind: string, id?: string) => {
+    modalOrigin.current = document.activeElement as HTMLElement | null;
+    window.scrollTo(0, 0); go(`${path}?confirm=${kind}${id ? '&id=' + id : ''}`);
+  };
+  const openDetail = (id: string) => go(`/benefit/${id}`, path.startsWith('/linked/'));
+  const linkManual = (id: string) => {
+    const action = { type: 'LINK_MANUAL' as const, id };
+    const next = reducer(state, action);
+    dispatch(action);
+    if (connection(next, id)) go(`/linked/${id}`, path.startsWith('/benefit/'));
+  };
   const openInterests = () => { setDraft([...state.interests]); go('/interests'); };
   const results = () => go('/results');
   const toggle = () => state.enabled ? openModal('off') : state.optedIn ? dispatch({ type: 'ENABLE' }) : go('/consent');
   useEffect(() => {
     if (requestedModal && !modal) go(path, true);
-    if (path === '/linked' && !state.manualLinked) go('/benefit/gs25', true);
-  }, [hash, state.manualLinked, modal]);
-  useEffect(() => { try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch { /* The demo remains functional without browser storage. */ } }, [state]);
+    if (completed && connection(state, completed.id)?.mode !== 'manual') go(`/benefit/${completed.id}`, true);
+  }, [hash, state.connections, modal]);
+  useEffect(() => { try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch { /* In-memory demo still works. */ } }, [state]);
   useEffect(() => { scrollRef.current?.scrollTo(0, 0); window.scrollTo(0, 0); document.querySelector<HTMLElement>('h1')?.focus({ preventScroll: true }); }, [path]);
   useEffect(() => { const resize = () => setScale(window.innerWidth > 560 ? Math.min(1, Math.max(0.55, (window.innerHeight - 84) / 956)) : 1); resize(); window.addEventListener('resize', resize); return () => window.removeEventListener('resize', resize); }, []);
 
   let title = 'LINK'; let content: ReactNode; let footer: ReactNode = null; let contentClass = 'standard';
   const linkHeader = <div className="link-header"><img src={asset('link.svg')} width={110} height={35.02} alt="LINK" /><button className="help-button" onClick={() => go('/help')}>이용방법</button></div>;
-  const gs = <Benefit id="gs25" mode={state.manualLinked ? 'complete' : 'link'} onClick={() => openDetail('gs25')} onAction={state.manualLinked ? () => openDetail('gs25') : linkManual} />;
   const resultFooter = <Button secondary onClick={results}>받은 혜택 · 이용 결과 보기</Button>;
-  const autoBenefits = (mode: 'detail' | 'complete' = 'detail') => auto.map(id => <Benefit key={id} id={id} mode={mode} retained={mode === 'complete'} onClick={() => openDetail(id)} />);
-  const isMain = path === '/';
+  const summary = <div className="summary"><div><span>링크한 혜택</span><strong aria-label="링크한 혜택 개수">{count}개</strong></div><div><span>받은 혜택금액</span><strong>{money(totalDiscount(state))}</strong></div></div>;
+  const manualRow = (c: Campaign) => <Benefit key={c.id} offer={c} unavailable={!connection(state, c.id) ? usageLabel(state, c.id) || (state.availability[c.id] === 'soldout' ? '예산 소진' : '') : ''} mode={connection(state, c.id) ? 'complete' : 'link'} onClick={() => openDetail(c.id)} onAction={connection(state, c.id) ? () => openDetail(c.id) : () => linkManual(c.id)} />;
+  const manualList = manualOffers.length ? manualOffers.map(manualRow) : <Note>지금은 직접 연결할 행사 혜택이 없어요.</Note>;
+  const autoBenefits = (mode: 'detail' | 'complete' | 'exclude' = 'detail') => auto.map(l => <Benefit key={l.campaignId} offer={campaign(l.campaignId)!} mode={mode} retained={!state.enabled} onClick={() => openDetail(l.campaignId)} onAction={mode === 'exclude' ? () => openModal('exclude', l.campaignId) : () => openDetail(l.campaignId)} />);
 
   if (isMain && !state.optedIn) {
     contentClass = 'start';
-    content = <>{linkHeader}<div className="summary"><div><span>링크한 혜택</span><strong aria-label="링크한 혜택 개수">{count}개</strong></div><div><span>받은 혜택금액</span><strong>{state.demoResults ? '1,000' : '0'}원</strong></div></div><div className="card intro"><LinkLogo size={190} /><h2>나에게 맞는 혜택,<br />알아서 LINK!</h2><p className="muted intro-description">혜택을 찾고 연결하는 번거로움은 줄이고,<br />필요한 혜택은 직접 고를 수 있어요.</p><Button onClick={() => { setConsent(false); go('/consent'); }}>LINK ON 시작하기</Button></div><h3>일상을 채우는 혜택</h3>{gs}<Note>시연용 혜택 예시 · 실제 제공 조건과 다를 수 있어요.</Note></>;
+    content = <>{linkHeader}{summary}<div className="card intro"><LinkLogo size={190} /><h2>나에게 맞는 혜택,<br />알아서 LINK!</h2><p className="muted intro-description">혜택을 찾고 연결하는 번거로움은 줄이고,<br />필요한 혜택은 직접 고를 수 있어요.</p><Button onClick={() => { setConsent(false); go('/consent'); }}>LINK ON 시작하기</Button></div><h3>일상을 채우는 혜택</h3>{manualList}<Note>시연용 혜택 예시 · 실제 제공 조건과 다를 수 있어요.</Note></>;
+    footer = resultFooter;
   } else if (isMain && !state.enabled) {
-    content = <><LinkLogo size={180} /><h2>자동 연결을 껐어요</h2><p className="muted">새 혜택은 자동 연결되지 않아요.<br />이미 연결된 혜택은 만료일까지 이용할 수 있어요.</p><h3>연결된 혜택</h3>{autoBenefits('complete')}{state.manualLinked && gs}<Note>다른 혜택은 기존 LINK처럼 직접 선택할 수 있어요.</Note></>;
+    content = <><LinkLogo size={180} /><h2>자동 연결을 껐어요</h2><p className="muted">새 혜택은 자동 연결되지 않아요.<br />이미 연결된 혜택은 만료일까지 이용할 수 있어요.</p><h3>연결된 혜택</h3>{autoBenefits('complete')}{manualOffers.filter(c => connection(state, c.id)).map(manualRow)}{count === 0 && <Note>현재 연결된 혜택이 없어요. 다른 혜택은 직접 고를 수 있어요.</Note>}</>;
     footer = <><div className="quick-actions"><Button secondary onClick={() => go('/manual')}>직접 고르는 혜택</Button><Button secondary onClick={results}>이용 결과</Button></div><Button onClick={() => dispatch({ type: 'ENABLE' })}>LINK ON 다시 켜기</Button></>;
   } else if (isMain && !auto.length) {
-    content = <><LinkLogo size={180} /><div className="status-circle"><Icon name="gift-large.svg" size={52} /></div><h2>지금은 자동으로 연결할<br />혜택이 없어요</h2><p className="muted">고객님의 관심 업종과 이용 패턴에 맞는<br />혜택이 생기면 연결해 드려요.</p><Note>LINK ON은 켜져 있어요.<br />적합한 혜택만 고객별 한도 내에서 연결해요.</Note><h3>직접 고르는 혜택</h3>{gs}</>;
+    content = <><LinkLogo size={180} /><div className="status-circle"><Icon name="gift-large.svg" size={52} /></div><h2>지금은 자동으로 연결할<br />혜택이 없어요</h2><p className="muted">{emptyReason(state)}</p><Note>LINK ON은 켜져 있어요.<br />적합한 혜택만 고객별 한도 내에서 연결해요.</Note><h3>직접 고르는 혜택</h3>{manualList}</>;
     footer = <><div className="quick-actions"><Button secondary onClick={() => go('/manage')}>자동 LINK 관리</Button><Button secondary onClick={results}>이용 결과</Button></div><Button secondary onClick={openInterests}>관심 업종 확인하기</Button></>;
   } else if (isMain) {
     contentClass = 'main-on';
-    content = <>{linkHeader}<div className="summary"><div><span>링크한 혜택</span><strong aria-label="링크한 혜택 개수">{count}개</strong></div><div><span>받은 혜택금액</span><strong>{state.demoResults ? '1,000' : '0'}원</strong></div></div><div className="active-banner"><div><LinkLogo size={128} /><p className="small muted">고객님께 맞는 혜택 {auto.length}개를 연결했어요.</p></div><Toggle checked={state.enabled} onClick={toggle} /></div><div className="section-heading"><h3>자동으로 연결된 혜택</h3><button className="text-action" onClick={() => go('/manage')}>관리 ›</button></div>{autoBenefits()}<h3>직접 고르는 혜택</h3>{gs}</>;
+    content = <>{linkHeader}{summary}<div className="active-banner"><div><LinkLogo size={128} /><p className="small muted">고객님께 맞는 혜택 {auto.length}개를 연결했어요.</p></div><Toggle checked={state.enabled} onClick={toggle} /></div><div className="section-heading"><h3>자동으로 연결된 혜택</h3><button className="text-action" onClick={() => go('/manage')}>관리 ›</button></div>{autoBenefits()}<h3>직접 고르는 혜택</h3>{manualList}</>;
     footer = resultFooter;
   } else if (path === '/consent' || path === '/help') {
     const help = path === '/help'; title = help ? 'LINK 이용방법' : 'LINK ON 시작';
@@ -142,57 +158,59 @@ function App() {
     footer = <Button disabled={!help && !consent} onClick={help ? back : () => { setDraft([...state.interests]); go('/interests'); }}>{help ? '확인' : '동의하고 시작하기'}</Button>;
   } else if (path === '/interests') {
     title = '관심 업종 설정';
-    content = <><h2>자주 이용하는 업종을<br />알려주세요</h2><p className="muted">자주 이용하는 업종을 여러 개 선택할 수 있어요.</p><div className="industry-grid">{industries.map(name => <button key={name} aria-pressed={draft.includes(name)} className={`industry ${draft.includes(name) ? 'selected' : ''}`} onClick={() => setDraft(values => values.includes(name) ? values.filter(v => v !== name) : [...values, name])}>{name}</button>)}</div><Note>선택한 업종과 이용 패턴을 함께 참고해요.<br />변경한 업종은 다음 혜택 선정부터 반영돼요.</Note></>;
+    content = <><h2>자주 이용하는 업종을<br />알려주세요</h2><p className="muted">자주 이용하는 업종을 여러 개 선택할 수 있어요.</p><div className="industry-grid">{industries.map(name => <button key={name} aria-pressed={draft.includes(name)} className={`industry ${draft.includes(name) ? 'selected' : ''}`} onClick={() => setDraft(values => values.includes(name) ? values.filter(v => v !== name) : [...values, name])}>{name}</button>)}</div><Note>선택한 업종과 이용 패턴을 함께 참고해요.<br />변경한 업종은 다음 혜택 선정부터 반영돼요.<br />업종을 선택하지 않으면 이용 패턴만 참고해요.</Note></>;
     footer = <Button disabled={!state.optedIn && !consent} onClick={() => { dispatch({ type: 'SAVE_INTERESTS', values: draft, activate: !state.optedIn && consent }); home(); }}>저장하고 혜택 확인하기</Button>;
-  } else if (path.startsWith('/benefit/')) {
+  } else if (path.startsWith('/benefit/') && detailOffer) {
     title = '혜택 상세'; contentClass = 'detail';
-    const requested = path.split('/')[2]; const id: MerchantId = requested in merchants ? requested as MerchantId : 'gs25';
-    const item = merchants[id]; const manual = id === 'gs25'; const excluded = !manual && state.excluded.includes(id);
-    content = <><Pill>{manual ? state.manualUnlinked ? '해제 완료' : '직접 LINK' : excluded ? '제외 완료' : '자동 LINK'}</Pill><div className="detail-merchant"><Merchant id={id} large /><div><p className="muted">{item.name}</p><h2>{item.discount}</h2></div></div><p className="muted">{item.subtitle}</p><div className="card reason"><strong><Icon name="gift.svg" />{manual ? '혜택 이용방법' : '이 혜택을 연결한 이유'}</strong><p className="muted">{manual ? <>결제 전에 링크하고 삼성카드로 결제하세요.<br />조건을 충족하면 혜택이 적용돼요.</> : <>{item.reason}<br />고객님께 맞는 혜택으로 골랐어요.</>}</p></div><Details rows={[
-      ['결제 조건', `한 번에 ${item.minimum} 이상`], ['이용 기간', '2026.11.01–11.30'], ['이용 횟수', '기간 내 1회'], ['혜택 중복', '다른 카드 할인과 중복 적용되지 않아요.'],
-    ]} />{manual && state.manualLinked && <button className="text-action left" onClick={() => openModal('unlink')}>이 혜택 LINK 해제</button>}{!manual && !excluded && <button className="text-action left" onClick={() => openModal(`exclude-${id}`)}>이 혜택 제외하기</button>}<Note>다른 할인과 조건이 겹치면 더 큰 할인 1건을 적용해요.</Note></>;
-    footer = <Button onClick={manual ? state.manualLinked ? home : linkManual : () => go('/manage')}>{manual ? state.manualLinked ? 'LINK 메인으로' : '이 혜택 링크하기' : '연결된 혜택 확인하기'}</Button>;
-  } else if (path === '/linked') {
+    const c = detailOffer, item = merchants[c.merchant], link = connection(state, c.id);
+    const closed = [...state.connections].reverse().find(l => l.campaignId === c.id && l.closedOn);
+    const usage = usageLabel(state, c.id);
+    const label = !inPeriod(c, state.date) ? (c.end < state.date ? '기간 종료' : '시작 전') : link ? link.mode === 'auto' ? '자동 LINK' : '직접 LINK' : state.excluded.includes(c.id) ? '제외 완료' : closed?.closedReason === 'unlinked' ? '해제 완료' : '연결 전';
+    content = <><Pill>{label}</Pill><div className="detail-merchant"><Merchant id={c.merchant} large /><div><p className="muted">{item.name}</p><h2>{money(c.discount)} 할인</h2></div></div><p className="muted">{item.subtitle}</p><div className="card reason"><strong><Icon name="gift.svg" />{link?.mode === 'auto' ? '이 혜택을 연결한 이유' : '혜택 이용방법'}</strong><p className="muted">{link?.mode === 'auto' ? link.reason : <>결제 전에 링크하고 삼성카드로 결제하세요.<br />조건을 충족하면 혜택이 적용돼요.</>}</p></div><Details rows={[
+      ['결제 조건', `한 번에 ${money(c.minimum)} 이상`], ['이용 기간', `${c.start.replaceAll('-', '.')}–${c.end.replaceAll('-', '.')}`], ['이용 횟수', '행사 기간 내 1회'], ['혜택 중복', '시연 조건: 다른 할인 적용 결제는 제외'],
+    ]} />{link && <button className="text-action left" onClick={() => openModal(link.mode === 'auto' ? 'exclude' : 'unlink', c.id)}>{link.mode === 'auto' ? '이 혜택 제외하기' : '이 혜택 LINK 해제'}</button>}{state.availability[c.id] === 'soldout' && !link && <Note>행사 예산이 소진되어 지금은 연결할 수 없어요.</Note>}<Note>시연용 행사 조건입니다. 실제 제공 조건과 다를 수 있어요.{state.excluded.includes(c.id) && !link && <><br />이번 행사의 자동 연결은 제외됐어요. 원하면 직접 연결할 수 있어요.</>}</Note></>;
+    footer = link ? <Button onClick={link.mode === 'auto' ? () => go('/manage') : home}>{link.mode === 'auto' ? '연결된 혜택 확인하기' : 'LINK 메인으로'}</Button> : <Button disabled={!inPeriod(c, state.date) || !!usage || state.availability[c.id] === 'soldout'} onClick={() => linkManual(c.id)}>{!inPeriod(c, state.date) ? '이용 기간이 아니에요' : usage || (state.availability[c.id] === 'soldout' ? '예산 소진' : '이 혜택 링크하기')}</Button>;
+  } else if (completed && connection(state, completed.id)?.mode === 'manual') {
     title = '직접 고른 혜택';
-    content = <><div className="status-circle"><Icon name="check-success.svg" size={48} /></div><h2>{state.manualLinked ? '혜택을 직접 연결했어요' : '직접 LINK를 해제했어요'}</h2><p className="muted">자동 LINK 외에도 원하는 혜택을<br />직접 골라 이용할 수 있어요.</p>{gs}<Note>결제 전에 연결한 혜택입니다.<br />이용 조건을 충족하면 혜택이 적용됩니다.</Note></>;
+    content = <><div className="status-circle"><Icon name="check-success.svg" size={48} /></div><h2>혜택을 직접 연결했어요</h2><p className="muted">자동 LINK 외에도 원하는 혜택을<br />직접 골라 이용할 수 있어요.</p>{manualRow(completed)}<Note>결제 전에 연결한 혜택입니다.<br />이용 조건을 충족하면 혜택이 적용됩니다.</Note></>;
     footer = <Button onClick={home}>LINK 메인으로</Button>;
   } else if (path === '/manage') {
     title = '자동 LINK 관리';
-    content = <><h2>자동 연결을 관리하세요</h2><div className="manage-toggle"><h3>LINK ON {state.enabled ? '사용 중' : '꺼짐'}</h3><Toggle checked={state.enabled} onClick={toggle} /></div><div className="interest-summary"><div><p className="small muted">관심 업종</p><strong>{state.interests.length ? state.interests.join(' · ') : '선택한 업종 없음'}</strong></div><button className="text-action small" onClick={openInterests}>관심 업종 변경 ›</button></div><h3>자동 연결 혜택 {auto.length}개</h3>{auto.map(id => <Benefit key={id} id={id} mode="exclude" onClick={() => openDetail(id)} onAction={() => openModal(`exclude-${id}`)} />)}<Note>제외한 이번 행사 혜택은 다시 자동 연결하지 않아요.</Note><button className="text-action left" onClick={toggle}>{state.enabled ? 'LINK ON 전체 해제' : 'LINK ON 다시 켜기'}</button></>;
+    content = <><h2>자동 연결을 관리하세요</h2><div className="manage-toggle"><h3>LINK ON {state.enabled ? '사용 중' : '꺼짐'}</h3><Toggle checked={state.enabled} onClick={toggle} /></div><div className="interest-summary"><div><p className="small muted">관심 업종</p><strong>{state.interests.length ? state.interests.join(' · ') : '선택한 업종 없음'}</strong></div><button className="text-action small" onClick={openInterests}>관심 업종 변경 ›</button></div><h3>자동 연결 혜택 {auto.length}개</h3>{autoBenefits('exclude')}{!auto.length && <Note>{emptyReason(state)}</Note>}<Note>제외한 이번 행사 혜택은 다시 자동 연결하지 않아요. 같은 가맹점의 새 행사는 별도로 선정해요.</Note><button className="text-action left" onClick={toggle}>{state.enabled ? '자동 연결 끄기' : 'LINK ON 다시 켜기'}</button></>;
     footer = <Button onClick={home}>관리 완료</Button>;
-  } else if (path.startsWith('/excluded/')) {
-    title = '자동 LINK 관리'; const requested = path.split('/')[2]; const id = requested === 'ssf' ? 'ssf' : 'starbucks';
-    content = <><Pill>제외 완료</Pill><h2>{merchants[id].name} 혜택을 제외했어요</h2><p className="muted">이 혜택의 연결을 취소했어요.<br />이번 행사 혜택은 다시 자동 연결하지 않아요.</p><h3>남은 자동 연결 혜택 {auto.length}개</h3>{autoBenefits()}<Note>{auto.length ? '다른 자동 LINK 혜택은 계속 이용할 수 있어요.' : '지금은 자동 연결된 혜택이 없어요. 다른 혜택은 직접 고를 수 있어요.'}</Note></>;
+  } else if (path.startsWith('/excluded/') && campaign(path.split('/')[2]) && state.excluded.includes(path.split('/')[2]) && !connection(state, path.split('/')[2])) {
+    title = '자동 LINK 관리'; const c = campaign(path.split('/')[2])!;
+    content = <><Pill>제외 완료</Pill><h2>{merchants[c.merchant].name} 혜택을 제외했어요</h2><p className="muted">이 혜택의 연결을 취소했어요.<br />이번 행사 혜택은 다시 자동 연결하지 않아요.</p><h3>남은 자동 연결 혜택 {auto.length}개</h3>{autoBenefits()}<Note>{auto.length ? '다른 자동 LINK 혜택은 계속 이용할 수 있어요.' : emptyReason(state)}</Note></>;
     footer = resultFooter;
   } else if (path === '/manual') {
     title = '직접 고르는 혜택'; contentClass = 'start';
-    content = <>{linkHeader}<h3>일상을 채우는 혜택</h3>{gs}<Note>시연용 혜택 예시 · 실제 제공 조건과 다를 수 있어요.</Note></>; footer = <Button onClick={home}>LINK 메인으로</Button>;
+    content = <>{linkHeader}<h3>일상을 채우는 혜택</h3>{manualList}<Note>시연용 혜택 예시 · 실제 제공 조건과 다를 수 있어요.</Note></>;
+    footer = resultFooter;
   } else if (path.startsWith('/results')) {
     title = '이용 결과';
-    const tab = path.split('/')[2] || 'done';
-    if (!state.demoResults) {
-      content = <><LinkLogo size={180} /><div className="status-circle"><Icon name="gift-large.svg" size={52} /></div><h2>아직 이용 내역이 없어요</h2><p className="muted">혜택을 연결한 뒤 조건에 맞게 결제하면<br />이곳에서 적용 결과를 확인할 수 있어요.</p><Note>시연용 예시 결제 내역을 불러와<br />적용 완료·확인 중·미적용 상태를 확인해 보세요.</Note></>;
-      footer = <Button onClick={() => { dispatch({ type: 'LOAD_DEMO_RESULTS' }); go('/results/done', true); }}>예시 결제 내역 불러오기</Button>;
-    } else {
-      const pending = tab === 'pending'; const failed = tab === 'failed';
-      const id: MerchantId = pending ? 'ssf' : failed ? 'gs25' : 'starbucks';
-      const label = pending ? '확인 중' : failed ? '미적용' : '적용 완료';
-      content = <><h2>내가 받은 LINK 혜택</h2><div className="result-tabs" role="tablist" aria-label="혜택 적용 상태">{[['done', '적용 완료'], ['pending', '확인 중'], ['failed', '미적용']].map(([value, text]) => <button key={value} role="tab" aria-selected={(tab === value) || (tab === '' && value === 'done')} className={label === text ? 'selected' : ''} onClick={() => go(`/results/${value}`, true)}>{text}</button>)}</div><div className="card result-card"><div className="result-icons"><Merchant id={id} /><Icon name={pending ? 'clock.svg' : failed ? 'info.svg' : 'check-result.svg'} size={40} /></div><h3>{pending ? '결제 내역을 확인 중이에요' : failed ? '이번 결제는 적용되지 않았어요' : '1,000원 혜택 적용'}</h3><p className="muted">{pending ? '매출전표가 접수되면 적용 여부를 확인해요.' : failed ? '최소 결제금액을 충족하지 않았어요.' : '자동 LINK로 챙긴 혜택이에요.'}</p></div><Details rows={[
-        ['이용 가맹점', merchants[id].name], ['결제금액', pending ? '32,000원' : failed ? '4,500원' : '6,500원'], ['이용일', '2026.11.03'], ['연결 방식', failed ? '직접 LINK' : '자동 LINK'], ['혜택 상태', label],
-      ]} /><Note>시연용 예시 결제 내역입니다. 실제 결제는 발생하지 않아요.</Note></>;
-      footer = <Button onClick={home}>LINK 메인으로</Button>;
-    }
-  } else { content = <><h2>LINK 메인으로 돌아가세요</h2><Button onClick={home}>LINK 메인으로</Button></>; }
-
-  const excludeId: AutoId = modal === 'exclude-ssf' ? 'ssf' : 'starbucks';
+    const requested = path.split('/')[2]; const tab = ['done', 'pending', 'failed'].includes(requested) ? requested : 'done';
+    const list = state.payments.filter(p => p.status === tab).slice().reverse();
+    content = <><h2>내가 받은 LINK 혜택</h2><div className="result-tabs" role="tablist" aria-label="혜택 적용 상태">{[['done', '적용 완료'], ['pending', '확인 중'], ['failed', '미적용']].map(([value, text]) => <button key={value} role="tab" aria-selected={tab === value} className={tab === value ? 'selected' : ''} onClick={() => go(`/results/${value}`, true)}>{text}</button>)}</div>
+      {!state.payments.length ? <><div className="status-circle"><Icon name="gift-large.svg" size={52} /></div><h2>아직 이용 내역이 없어요</h2><p className="muted">혜택을 연결한 뒤 조건에 맞게 결제하면<br />이곳에서 적용 결과를 확인할 수 있어요.</p><Note>폰 화면 아래의 시연 도구에서 결제와 전표 접수를 진행해 보세요.</Note></> : !list.length ? <Note>{tab === 'pending' ? '확인 중인 결제가 없어요.' : tab === 'failed' ? '미적용된 결제가 없어요.' : '아직 적용 완료된 혜택이 없어요.'} 다른 상태의 내역도 확인해 보세요.</Note> : list.map(p => {
+        const c = campaign(p.campaignId)!; const pending = p.status === 'pending'; const failed = p.status === 'failed';
+        return <section className="payment-entry" key={p.id}><div className="card result-card"><div className="result-icons"><Merchant id={c.merchant} /><Icon name={pending ? 'clock.svg' : failed ? 'info.svg' : 'check-result.svg'} size={40} /></div><h3>{pending ? '결제 내역을 확인 중이에요' : failed ? '이번 결제는 적용되지 않았어요' : `${money(p.discount)} 혜택 적용`}</h3><p className="muted">{pending ? '매출전표가 접수되면 적용 여부를 확인해요.' : failed ? p.reason : `${p.mode === 'auto' ? '자동' : '직접'} LINK로 챙긴 혜택이에요.`}</p></div><Details rows={[
+          ['이용 가맹점', merchants[c.merchant].name], ['대상 행사', `${c.start.slice(0, 7).replace('-', '.')} 행사`], ['결제금액', money(p.amount)], ['할인금액', pending ? '확인 중 (미확정)' : money(p.discount)], ['이용일', p.date.replaceAll('-', '.')], ['연결 방식', p.mode ? p.mode === 'auto' ? '자동 LINK' : '직접 LINK' : '연결 없음'], ['혜택 상태', pending ? '확인 중' : failed ? '미적용' : '적용 완료'],
+        ]} /><button className="text-action left" onClick={() => openDetail(c.id)}>행사 혜택 상세 ›</button></section>;
+      })}<Note>시연 결제 내역입니다. 실제 결제는 발생하지 않아요.</Note></>;
+    footer = <Button onClick={home}>LINK 메인으로</Button>;
+  } else {
+    content = <><h2>현재 상태에서 볼 수 없는 화면이에요</h2><p className="muted">행사와 연결 상태를 다시 확인해 주세요.</p></>;
+    footer = <Button onClick={home}>LINK 메인으로</Button>;
+  }
+  const modalName = modalOffer ? merchants[modalOffer.merchant].name : '';
   return <div className="preview"><div className="preview-stage" style={{ zoom: scale } as CSSProperties}><div className="phone" data-screen={path}>
-    <div className="screen-body" inert={!!modal}><StatusBarIPhone /><nav className="navigation" aria-label="화면 이동">{!isMain ? <button className="nav-icon" onClick={back} aria-label="뒤로"><Icon name="back.svg" /></button> : <span className="nav-placeholder" />}<h1 tabIndex={-1}>{title}</h1>{!isMain ? <button className="nav-icon" onClick={home} aria-label="LINK 메인"><Icon name="close.svg" size={20} /></button> : <span className="nav-placeholder" />}</nav><main className={`content ${contentClass}`} ref={scrollRef}>{content}</main>{footer && <footer className="footer">{footer}</footer>}<HomeIndicator /></div>
-    {modal && <ConfirmSheet returnFocus={modalOrigin.current} title={modal === 'unlink' ? '직접 LINK를 해제할까요?' : modal === 'off' ? 'LINK ON을 끌까요?' : '이 혜택을 제외할까요?'} confirm={modal === 'unlink' ? 'LINK 해제' : modal === 'off' ? '자동 연결 끄기' : `${merchants[excludeId].name} 혜택 제외`} cancel={modal === 'unlink' ? '연결 유지하기' : modal === 'off' ? '자동 연결 유지하기' : '혜택 유지하기'} onClose={closeModal} onConfirm={() => {
-      if (modal === 'unlink') { dispatch({ type: 'UNLINK_MANUAL' }); closeModal(); }
+    <div className="screen-body" inert={!!modal}><StatusBarIPhone /><nav className="navigation" aria-label="화면 이동">{!isMain ? <button className="nav-icon" onClick={back} aria-label="뒤로"><Icon name="back.svg" /></button> : <span className="nav-placeholder" />}<h1 tabIndex={-1}>{title}</h1>{!isMain ? <button className="nav-icon" onClick={home} aria-label="LINK 메인"><Icon name="close.svg" size={20} /></button> : <span className="nav-placeholder" />}</nav><main className={`content ${contentClass}`} ref={scrollRef}>{state.notice && <div className="inline-notice" role="status">{state.notice}</div>}{content}</main>{footer && <footer className="footer">{footer}</footer>}<HomeIndicator /></div>
+    {modal && <ConfirmSheet returnFocus={modalOrigin.current} title={modal === 'unlink' ? '직접 LINK를 해제할까요?' : modal === 'off' ? 'LINK ON을 끌까요?' : '이 혜택을 제외할까요?'} confirm={modal === 'unlink' ? 'LINK 해제' : modal === 'off' ? '자동 연결 끄기' : `${modalName} 혜택 제외`} cancel={modal === 'unlink' ? '연결 유지하기' : modal === 'off' ? '자동 연결 유지하기' : '혜택 유지하기'} onClose={historyBack} onConfirm={() => {
+      if (modal === 'unlink' && modalOffer) { dispatch({ type: 'UNLINK_MANUAL', id: modalOffer.id }); historyBack(); }
       else if (modal === 'off') { dispatch({ type: 'DISABLE' }); home(); }
-      else { dispatch({ type: 'EXCLUDE', id: excludeId }); go(`/excluded/${excludeId}`, true); }
-    }}>{modal === 'unlink' ? <>GS25 혜택의 연결이 해제돼요.<br />다른 혜택과 LINK ON 설정은 유지돼요.</> : modal === 'off' ? <>새 혜택의 자동 연결이 중단돼요.<br />이미 연결된 혜택은 만료일까지 유지됩니다.</> : <>{merchants[excludeId].name} 혜택의 연결이 취소돼요.<br />이번 행사 혜택은 다시 자동 연결하지 않아요.</>}</ConfirmSheet>}
-  </div></div><div className="preview-tools"><span>LINK ON · 로컬 시연</span><button onClick={() => { dispatch({ type: 'RESET' }); setConsent(false); setDraft(initialState.interests); home(); requestAnimationFrame(() => { scrollRef.current?.scrollTo(0, 0); window.scrollTo(0, 0); document.querySelector<HTMLElement>('h1')?.focus({ preventScroll: true }); }); }}>처음부터 다시 보기</button></div></div>;
+      else if (modalOffer) { dispatch({ type: 'EXCLUDE', id: modalOffer.id }); go(`/excluded/${modalOffer.id}`, true); }
+    }}>{modal === 'unlink' ? <>{modalName} 혜택의 연결이 해제돼요.<br />다른 혜택과 LINK ON 설정은 유지돼요.</> : modal === 'off' ? <>새 혜택의 자동 연결이 중단돼요.<br />이미 연결된 혜택은 만료일까지 유지됩니다.</> : <>{modalName} 혜택의 연결이 취소돼요.<br />이번 행사 혜택은 다시 자동 연결하지 않아요.</>}</ConfirmSheet>}
+  </div></div><div className="preview-tools"><span>LINK ON · 로컬 시연 · {state.date}</span><button onClick={() => { dispatch({ type: 'RESET' }); setConsent(false); setDraft(initialState.interests); home(); requestAnimationFrame(() => { scrollRef.current?.scrollTo(0, 0); window.scrollTo(0, 0); }); }}>처음부터 다시 보기</button></div><DemoTools state={state} dispatch={dispatch} navigate={route => go(route)} /></div>;
 }
 
 initializeNavigation();
