@@ -14,7 +14,6 @@ export function PaymentExperience({ state, dispatch, requestedId, onSubmitted }:
   const linked = selected && connection(state, selected.id);
 
   return <>
-    <span className="pill">가상 결제 체험</span>
     <h2>연결한 혜택을<br />사용해 볼까요?</h2>
     <p className="muted">가맹점과 금액을 고르면 할인 적용 과정을 확인할 수 있어요.</p>
     <form id="payment-experience" className="payment-form" onSubmit={event => {
