@@ -371,3 +371,13 @@ input[type=checkbox]:active{box-shadow:0 0 0 5px #1677ff24}
 
 /* Keep the app content centered when a native scrollbar takes up space. */
 .phone .content{scrollbar-gutter:stable both-edges}
+
+/* Main totals stay in the same slot across onboarding, ON, OFF and empty states. */
+.main-header{min-height:44px;display:flex;align-items:center}
+.main-header>.link-header,.main-header>.entry-heading{width:100%;min-height:44px;padding:0}
+.main-header+.summary>div{padding:6px 8px}
+@media(max-width:560px){.content.start:has(.main-header),.content.main-state{gap:12px}}
+
+.main-overview{display:flex;flex-direction:column;gap:10px}
+.main-overview .main-header>.link-header{min-height:44px}
+@media(max-width:560px){.phone:has(.main-overview) .navigation{margin-bottom:14px}}
