@@ -41,7 +41,7 @@ export function PaymentExperience({ state, dispatch, requestedId, onSubmitted, o
         <strong>{money(selected.minimum)} 이상 결제 시 {money(selected.discount)} 할인</strong>
         <p className="small muted">{usageLabel(state, id) ? '이미 이용했거나 확인 중인 혜택이에요. 다시 결제해도 중복 할인되지 않아요.' : linked ? `${linked.mode === 'auto' ? '자동' : '직접'} LINK로 연결된 혜택이에요.` : '연결하지 않은 혜택이에요. 지금 결제하면 할인이 적용되지 않아요.'}</p>
       </div> : <p className="small muted">현재 체험할 수 있는 행사가 없어요.</p>}
-      <p id="payment-help" className="small muted">금액을 바꿔 할인 조건을 비교해 보세요.<br />이 체험에는 다른 할인이 적용되지 않아요.</p>
+      <p id="payment-help" className="small muted">금액을 바꿔 할인 조건을 비교해 보세요.</p>
       <p id="payment-error" className="form-error" role="alert">{error}</p>
     </form>
   </>;

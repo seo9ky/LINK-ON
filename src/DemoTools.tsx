@@ -74,7 +74,7 @@ export function DemoTools({ state, dispatch, onReset, onViewBenefits, blocked = 
         <div className="settings-month"><span>현재 체험 중</span><strong>{currentMonthLabel}</strong></div>
         <p className="settings-help">{months.map(month => `${Number(month.slice(5, 7))}월`).join('·')} 두 달의 혜택을 체험할 수 있어요.</p>
         {nextMonth ? <>
-          <p className="settings-help">이번 달 혜택은 만료되고, LINK ON이 켜져 있으면 다음 달의 맞춤 혜택을 새로 연결해요. 결제 기록은 유지돼요.</p>
+          <p className="settings-help">이번 달 혜택은 만료되고, LINK ON이 켜져 있으면 다음 달의 맞춤 혜택을 새로 연결해요. 같은 가맹점이 다시 선정될 수 있고, 결제 기록은 유지돼요.</p>
           <div className="settings-actions"><button className="settings-primary" onClick={() => { clearFeedback(); execute({ type: 'ADVANCE_DATE', date: nextMonth }, true); }}>다음 달로 이동 <span aria-hidden="true">→</span></button></div>
           <p className="settings-help">{Number(state.date.slice(5, 7))}월 → {Number(nextMonth.slice(5, 7))}월 · 마지막으로 적용한 조건을 사용해요.</p>
           {dirty && <p className="settings-help settings-draft">아직 적용하지 않은 맞춤 조건이 있어요. 새 조건으로 체험하려면 먼저 적용해 주세요.</p>}

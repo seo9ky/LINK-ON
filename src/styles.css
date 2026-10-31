@@ -294,3 +294,56 @@ input[type=checkbox]:active{box-shadow:0 0 0 5px #1677ff24}
   .settings-view-benefits:active{background:#d7e5ff}
 }
 @media(hover:hover) and (pointer:fine){.settings-view-benefits:hover{background:#e3edff}}
+
+/* First-visit decisions: concise principles, visible choices and purchase summaries. */
+.consent-principles{gap:12px;padding:16px;box-shadow:none;background:var(--subtle)}
+.consent-principles .service-row{min-height:32px}
+.selection-summary{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;line-height:22px;color:var(--muted)}
+.selection-summary strong{font-weight:600;color:var(--brand-blue);white-space:nowrap}
+.result-purchase{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.result-purchase strong{font-size:17px;line-height:25px;overflow-wrap:anywhere}
+.result-purchase span{font-size:16px;line-height:24px;color:var(--muted)}
+.content.results-screen{gap:14px}.results-screen .result-card{gap:12px}
+@media(max-width:560px){
+  .phone:has(.content.interests-screen) .navigation,.phone:has(.content.results-screen) .navigation{margin-bottom:12px}
+  .content.interests-screen{gap:10px}
+  .interests-screen>h2{font-size:22px;line-height:30px}
+  .interests-screen .selection-hint{font-size:12px;line-height:20px;padding-left:8px}
+  .interests-screen .industry-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .interests-screen .industry{height:48px;min-height:48px;white-space:normal;word-break:keep-all;font-size:13px;line-height:18px;padding:4px 8px}
+  .interests-screen>.small{font-size:12px;line-height:20px}
+  .content.consent-screen{gap:10px}
+  .content.consent-screen>p.muted{font-size:14px;line-height:22px}
+  .content.consent-screen>.small.muted{font-size:12px;line-height:20px}
+  .consent-principles{gap:8px;padding:12px 14px}
+  .consent-principles .service-row{min-height:28px}
+  .consent-principles .service-row strong{font-size:14px;line-height:22px}
+  .content.main-on{gap:6px}
+  .content.main-on .link-header{min-height:38px;padding:0}
+  .content.main-on .active-banner{padding:6px 12px}
+  .content.main-on .active-banner p{font-size:12px;line-height:18px}
+  .content.main-on .section-heading h3{font-size:18px;line-height:26px}
+  .content.main-on>.benefit{grid-template-columns:36px minmax(0,1fr) 64px;column-gap:8px;min-height:76px;padding:4px 0}
+  .content.main-on>.benefit .benefit-body{grid-template-columns:36px minmax(0,1fr);gap:8px;min-height:68px}
+  .content.main-on>.benefit .merchant-frame,.content.main-on>.benefit .merchant{width:36px;height:36px}
+  .content.main-on>.benefit .benefit-info{gap:2px}
+  .content.main-on>.benefit .merchant-name{font-size:13px;line-height:20px}
+  .content.main-on>.benefit .benefit-info strong{font-size:18px;line-height:24px}
+  .content.main-on>.benefit .benefit-action{width:64px}
+  .phone:has(.content.main-on)>.screen-body>.footer{gap:4px;padding-bottom:8px}
+  .phone:has(.content.main-on) .footer .button.secondary{background:transparent;font-size:13px}
+  .results-screen .result-card{padding:16px;gap:10px}
+  .results-screen .result-card h3{font-size:22px;line-height:30px}
+  .results-screen .result-card>p{font-size:14px;line-height:22px}
+  .results-screen .details{gap:10px;font-size:14px;line-height:22px;padding:6px 0}
+}
+@media(min-width:960px) and (orientation:landscape){
+  .phone .small,.phone .condition,.phone .merchant-name,.phone .note,.phone .selection-hint{font-size:17px;line-height:26px}
+  .phone .payment-form label,.phone .payment-form input,.phone .payment-form select{font-size:18px;line-height:28px}
+  .phone .payment-condition strong,.phone .details,.phone .selection-summary{font-size:18px;line-height:28px}
+  .phone .result-purchase strong{font-size:20px;line-height:30px}
+  .phone .result-purchase span{font-size:18px;line-height:28px}
+  .phone .consent-principles .service-row strong{font-size:18px;line-height:28px}
+}
+
+.benefit-info .condition{word-break:keep-all;overflow-wrap:normal}

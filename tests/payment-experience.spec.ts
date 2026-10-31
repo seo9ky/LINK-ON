@@ -7,7 +7,7 @@ test('QR 첫 방문에서 화면 안의 안내만으로 자동 연결과 할인 
   await page.getByRole('button', { name: 'LINK ON 시작하기', exact: true }).click();
   await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: '동의하고 시작하기' }).click();
-  await expect(page.getByText(/체험용으로 외식·간식과 패션·스타일/)).toBeVisible();
+  await expect(page.getByText(/체험용으로 2개 업종/)).toBeVisible();
   await page.getByRole('button', { name: '저장하고 혜택 확인하기' }).click();
   await page.getByRole('button', { name: '결제 체험하기', exact: true }).click();
   await expect(page.getByLabel('결제할 가맹점')).toHaveValue('starbucks-202611');
