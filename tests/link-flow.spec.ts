@@ -135,7 +135,7 @@ test('직접 연결 → 결제 → 해제 → 전표 → 할인 합계, 후속 �
   await page.getByRole('button', { name: '결제 체험하기', exact: true }).click();
   await page.getByLabel('결제할 가맹점').selectOption('gs25-202611');
   await page.getByRole('button', { name: /원으로 결제 체험/, exact: true }).click();
-  await expect(page.getByRole('heading', { name: '결제 체험이 접수됐어요' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '체험 결제가 접수됐어요' })).toBeVisible();
   await home(page); await details(page);
   await page.getByRole('button', { name: '이 혜택 LINK 해제', exact: true }).click();
   await page.getByRole('button', { name: 'LINK 해제', exact: true }).click();
