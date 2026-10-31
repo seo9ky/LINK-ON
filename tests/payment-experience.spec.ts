@@ -22,7 +22,7 @@ test('QR 첫 방문에서 화면 안의 안내만으로 자동 연결과 할인 
   await expect(page.getByRole('button', { name: '스타벅스 혜택 상세', exact: true })).toContainText('이용 완료');
   await page.getByRole('button', { name: '스타벅스 이용 결과 보기', exact: true }).click();
   await expect(page.getByRole('heading', { name: '1,000원 할인 적용' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '체험 조건 바꾸기', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '자동 LINK 한도', exact: true })).toBeVisible();
 });
 
 test('결제 체험은 최소 금액 미충족을 안내하고 같은 혜택을 조건에 맞게 재시도할 수 있다', async ({ page }) => {
