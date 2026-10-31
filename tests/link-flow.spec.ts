@@ -111,7 +111,7 @@ test('개별 제외 후 재활성화해도 이번 행사 혜택이 복구되지 
   await expect(page.getByRole('button', { name: '공차 혜택 상세' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'KREAM 혜택 상세' })).toBeVisible();
 });
-test('관심 업종 취소·저장과 다음 행사 선정', async ({ page }) => {
+test('관심 업종 취소·저장과 한도 확대 시 추가 선정', async ({ page }) => {
   await ready(page); await enable(page);
   await page.getByRole('button', { name: '관리' }).click();
   await page.getByRole('button', { name: '관심 업종 변경 ›' }).click();
@@ -122,10 +122,10 @@ test('관심 업종 취소·저장과 다음 행사 선정', async ({ page }) =>
   await page.locator('.industry-grid').getByRole('button', { name: '패션 · 스타일', exact: true }).click();
   await page.getByRole('button', { name: '저장하고 혜택 확인하기' }).click();
   await expect(page.getByLabel('링크한 혜택 개수')).toHaveText('2개');
-  await page.getByRole('tab', { name: '다음 달 체험하기', exact: true }).click();
-  await page.getByRole('button', { name: '다음 달로 이동', exact: true }).click();
-  await expect(page.getByLabel('링크한 혜택 개수')).toHaveText('2개');
-  await expect(page.getByRole('button', { name: '스타벅스 혜택 상세' })).toContainText('12.31');
+  await page.getByLabel('자동 연결 한도',{exact:true}).fill('3');
+  await page.getByRole('button',{name:'한도 적용하기'}).click();
+  await expect(page.getByLabel('링크한 혜택 개수')).toHaveText('3개');
+  await expect(page.getByRole('button', { name: '스타벅스 혜택 상세' })).toContainText('11.30');
   await expect(page.getByRole('button', { name: '공차 혜택 상세' })).toBeVisible();
 });
 

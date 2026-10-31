@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('노트북에서 폰과 설정을 나란히 보여주고 선택 컨트롤에 반응한다', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: '체험 조건 바꾸기', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '자동 LINK 한도', exact: true })).toBeVisible();
   const phone = await page.locator('.phone').boundingBox();
   expect(Math.abs(phone!.y + phone!.height / 2 - 360)).toBeLessThan(30);
   const side = await page.locator('.experience-tools').boundingBox();
@@ -12,19 +12,16 @@ test('노트북에서 폰과 설정을 나란히 보여주고 선택 컨트롤�
   expect(phone!.width).toBeGreaterThan(260);
   await expect(page.getByRole('button', { name: '원본 크기로 보기', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '다시 체험하기', exact: true })).toHaveCount(0);
-  await expect(page.locator('.settings-tabs [role=tab]')).toHaveCount(2);
+  await expect(page.locator('.settings-tabs [role=tab]')).toHaveCount(0);
   await expect(page.locator('.demo-tools summary')).toHaveCount(0);
   expect(phone!.y + phone!.height).toBeLessThanOrEqual(720);
   expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(720);
   expect(side!.x).toBeGreaterThan(phone!.x + phone!.width);
-  const pattern = page.locator('.settings-industry-grid').getByRole('button', { name: '패션 · 스타일', exact: true });
-  const before = await pattern.evaluate(el => getComputedStyle(el).backgroundColor);
-  await pattern.hover();
-  await expect.poll(() => pattern.evaluate(el => getComputedStyle(el).backgroundColor)).not.toBe(before);
-  await pattern.click();await expect(pattern).toHaveAttribute('aria-pressed','true');
-  await pattern.focus();await expect(pattern).toBeFocused();
-  await page.getByRole('tab', { name: '다음 달 체험하기', exact: true }).click();
-  await expect(page.getByRole('button', { name: '다음 달로 이동' })).toBeVisible();
+  const increment=page.getByRole('button',{name:'한도 1개 늘리기'});
+  const before=await increment.evaluate(el=>getComputedStyle(el).backgroundColor);await increment.hover();
+  await expect.poll(()=>increment.evaluate(el=>getComputedStyle(el).backgroundColor)).not.toBe(before);
+  await increment.click();await expect(page.getByLabel('자동 연결 한도',{exact:true})).toHaveValue('3');
+  await increment.focus();await expect(increment).toBeFocused();
 });
 
 test('앱 버튼의 호버·누름 피드백과 화면 이동이 함께 작동한다', async ({ page }) => {
