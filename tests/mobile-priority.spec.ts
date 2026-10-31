@@ -29,6 +29,8 @@ test('모바일 첫 화면에서 동의·연결된 혜택·입력 금액을 확�
  await page.locator('.industry-grid').getByRole('button',{name:'건강 · 화장품',exact:true}).click();
  await page.getByRole('button',{name:'저장하고 혜택 확인하기'}).click();
  await expect(page.getByRole('button',{name:'스타벅스 혜택 상세',exact:true})).toBeInViewport({ratio:1});
+ await expect(page.locator('.summary')).toBeInViewport({ratio:1});
+ await page.getByRole('button',{name:'SSF SHOP 혜택 상세',exact:true}).scrollIntoViewIfNeeded();
  await expect(page.getByRole('button',{name:'SSF SHOP 혜택 상세',exact:true})).toBeInViewport({ratio:1});
  await page.getByRole('button',{name:'결제 체험하기',exact:true}).click();
  await expect(page.getByLabel('결제금액 (원)',{exact:true})).toBeInViewport({ratio:1});
