@@ -366,5 +366,5 @@ input[type=checkbox]:active{box-shadow:0 0 0 5px #1677ff24}
 .limit-tools .settings-reset{margin-inline:auto}
 @media(hover:hover) and (pointer:fine){.limit-stepper button:not(:disabled):hover{background:var(--tint)}}
 .limit-stepper button:not(:disabled):active{background:#d7e5ff}
-@media(min-width:1200px) and (orientation:landscape){.experience-tools{justify-self:start}.preview{grid-template-columns:minmax(280px,340px) max-content minmax(240px,280px)}}
+@media(min-width:1200px) and (orientation:landscape){.experience-tools{justify-self:start}.preview{grid-template-columns:minmax(280px,340px) max-content minmax(240px,280px);column-gap:clamp(40px,4.5vw,80px)}}
 @media(max-width:959px),(orientation:portrait){.experience-tools{max-width:360px}}
