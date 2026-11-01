@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('노트북에서 폰과 설정을 나란히 보여주고 선택 컨트롤에 반응한다', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: '자동 LINK 한도', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '자동 연결 한도 체험', exact: true })).toBeVisible();
   const phone = await page.locator('.phone').boundingBox();
   expect(Math.abs(phone!.y + phone!.height / 2 - 360)).toBeLessThan(30);
   const side = await page.locator('.experience-tools').boundingBox();

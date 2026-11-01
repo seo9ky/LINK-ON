@@ -27,7 +27,7 @@ export function DemoTools({ state, dispatch, onReset, onViewBenefits, blocked = 
     dispatch(action);
   };
   return <section className="demo-tools limit-tools" inert={blocked} aria-labelledby="demo-settings-title">
-    <h2 id="demo-settings-title" className="settings-heading">자동 LINK 한도</h2>
+    <h2 id="demo-settings-title" className="settings-heading">자동 연결 한도 체험</h2>
     <div className="settings-content">
       <p className="settings-intro">맞춤 혜택을 자동으로 연결할 개수를 정해보세요.</p>
       <div className="settings-panel">
