@@ -5,7 +5,7 @@ function ExampleBenefit({ image, name, caption, manual = false }: { image: strin
   return <div className="overview-benefit"><img src={`/assets/${image}`} alt="" width="52" height="52" /><div><strong>{name}</strong><span>{caption}</span></div><span className={`overview-status ${manual ? 'manual' : ''}`}><img src={`/assets/${manual ? 'plus.svg' : 'check-complete.svg'}`} alt="" width="16" height="16" />{manual ? '직접 LINK' : '자동 LINK'}</span></div>;
 }
 export function ServiceOverview({ onClose, onStart, started }: { onClose: () => void; onStart: () => void; started: boolean }) {
-  return <ScrollDocument title="LINK ON 서비스 소개" subtitle="필요한 혜택을 알아서 챙겨주는 맞춤 LINK" label="서비스 소개 내용" closeLabel="서비스 소개 닫기" className="service-overview" onClose={onClose}>
+  return <ScrollDocument title="LINK ON 서비스 소개" label="서비스 소개 내용" closeLabel="서비스 소개 닫기" className="service-overview" onClose={onClose}>
     <div className="overview-content">
       <section className="overview-hero" data-reveal>
         <LinkLogo size={190} />

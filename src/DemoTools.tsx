@@ -32,7 +32,7 @@ export function DemoTools({ state, dispatch, onReset, onViewBenefits, blocked = 
       <p className="settings-intro">나에게 맞는 혜택을 최대 N개까지.<br />한도를 바꿔 연결 결과를 확인해 보세요.</p>
       <div className="settings-panel">
         <form onSubmit={event => { event.preventDefault(); apply(); }} noValidate>
-          <label htmlFor="auto-link-limit">자동 연결 한도 <span className="limit-symbol" aria-hidden="true">N</span></label>
+          <label htmlFor="auto-link-limit">자동 연결 한도</label>
           <div className="limit-stepper">
             <button type="button" aria-label="한도 1개 줄이기" disabled={validLimit && Number(limit) === 0} onClick={() => adjust(-1)}>−</button>
             <div className="limit-value"><input id="auto-link-limit" aria-label="자동 연결 한도" type="number" inputMode="numeric" min="0" max="20" step="1" aria-describedby="limit-help settings-error" aria-invalid={!validLimit} value={limit} onChange={e => { setLimit(e.target.value); clearFeedback(); }} /><span aria-hidden="true">개</span></div>
