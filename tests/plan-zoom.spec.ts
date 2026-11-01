@@ -1,0 +1,26 @@
+import { test, expect } from '@playwright/test';
+for (const width of [375,1366]) test(`슬라이드 확대 ${width}: 확대·이동·닫기 후 목록 위치와 앱 상태 보존`, async ({ page }) => {
+  await page.setViewportSize({width,height:812});await page.goto('/');
+  await page.getByRole('button',{name:'GS25 혜택 링크',exact:true}).click();
+  const appUrl=page.url();const state=await page.evaluate(()=>localStorage.getItem('link-on-demo-v2'));
+  await page.getByRole('button',{name:'기획서',exact:true}).click();
+  const list=page.getByRole('region',{name:'기획서 슬라이드',exact:true});
+  const target=page.locator('.plan-slide-open').nth(3);
+  await target.scrollIntoViewIfNeeded();await expect.poll(()=>target.evaluate(e=>e.parentElement!.getAnimations().length)).toBe(0);
+  const scroll=await list.evaluate(e=>e.scrollTop);await target.click();
+  const zoom=page.locator('.slide-zoom');await expect(zoom).toBeVisible();
+  const area=page.getByRole('region',{name:'확대한 슬라이드',exact:true});await expect(area).toBeFocused();
+  await expect(zoom.locator('output')).toHaveText('300%');
+  await expect.poll(()=>area.locator('img').evaluate((e:HTMLImageElement)=>e.complete&&e.naturalWidth>0)).toBe(true);
+  expect(await area.evaluate(e=>e.scrollWidth>e.clientWidth)).toBe(true);
+  await area.evaluate(e=>{e.scrollLeft=200;e.scrollTop=120;});expect(await area.evaluate(e=>e.scrollLeft)).toBeGreaterThan(0);
+  await zoom.getByRole('button',{name:'슬라이드 확대',exact:true}).click();await expect(zoom.locator('output')).toHaveText('400%');
+  await expect(zoom.getByRole('button',{name:'슬라이드 확대',exact:true})).toBeDisabled();
+  await zoom.getByRole('button',{name:'슬라이드 축소',exact:true}).click();await expect(zoom.locator('output')).toHaveText('300%');
+  await zoom.getByRole('button',{name:'화면 맞춤',exact:true}).click();await expect(zoom.locator('output')).toHaveText('100%');
+  await expect.poll(()=>area.evaluate(e=>e.scrollWidth-e.clientWidth)).toBeLessThanOrEqual(1);
+  await zoom.getByRole('button',{name:'확대 보기 닫기',exact:true}).click();await expect(zoom).toHaveCount(0);
+  await expect(target).toBeFocused();expect(Math.abs((await list.evaluate(e=>e.scrollTop))-scroll)).toBeLessThan(2);
+  await page.keyboard.press('Enter');await expect(zoom).toBeVisible();await page.keyboard.press('Escape');await expect(zoom).toHaveCount(0);await expect(list).toBeVisible();
+  await page.getByRole('button',{name:'기획서 닫기',exact:true}).click();await expect(page).toHaveURL(appUrl);expect(await page.evaluate(()=>localStorage.getItem('link-on-demo-v2'))).toBe(state);
+});

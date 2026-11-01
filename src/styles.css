@@ -381,3 +381,20 @@ input[type=checkbox]:active{box-shadow:0 0 0 5px #1677ff24}
 .main-overview{display:flex;flex-direction:column;gap:10px}
 .main-overview .main-header>.link-header{min-height:44px}
 @media(max-width:560px){.phone:has(.main-overview) .navigation{margin-bottom:14px}}
+
+/* Slide enlargement keeps the document's position and app state intact. */
+.plan-slide-open{display:block;width:100%;text-align:left;cursor:zoom-in;border-radius:2px}
+.plan-slide-open:active{filter:none!important}
+.slide-zoom{width:min(1440px,calc(100vw - 32px));height:calc(100dvh - 32px);max-width:none;max-height:none;padding:0;border:1px solid var(--line);border-radius:20px;background:#f4f6fa;color:var(--ink);overflow:hidden}
+.slide-zoom[open]{display:flex;flex-direction:column}.slide-zoom::backdrop{background:#17203399}
+.slide-zoom h2{display:flex;align-items:center;gap:14px;min-width:0}
+.zoom-page{font-size:12px;line-height:20px;font-weight:400;color:var(--muted);white-space:nowrap}
+.zoom-toolbar{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px;background:#fff;border-bottom:1px solid var(--line);flex-shrink:0}
+.zoom-toolbar button{min-width:44px;min-height:44px;border-radius:12px;color:var(--brand-blue);background:var(--tint);font-size:20px}
+.zoom-toolbar button:disabled{color:var(--muted);background:var(--subtle)}
+.zoom-toolbar output{min-width:52px;text-align:center;font-size:14px;font-variant-numeric:tabular-nums}
+.zoom-toolbar .zoom-fit{padding:0 14px;margin-left:8px;font-size:14px}
+.zoom-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;outline-offset:-3px;scrollbar-width:thin;scrollbar-color:#a8afb9 transparent}
+.zoom-scroll img{display:block;max-width:none;height:auto;background:#fff}
+@media(hover:hover) and (pointer:fine){.zoom-toolbar button:hover:not(:disabled){background:#dce8ff}}
+@media(max-width:560px){.slide-zoom{width:100%;height:100dvh;margin:0;border:0;border-radius:0}.slide-zoom h2{font-size:16px;gap:10px}.zoom-toolbar{gap:6px}}

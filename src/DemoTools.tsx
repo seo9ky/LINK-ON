@@ -29,7 +29,7 @@ export function DemoTools({ state, dispatch, onReset, onViewBenefits, blocked = 
   return <section className="demo-tools limit-tools" inert={blocked} aria-labelledby="demo-settings-title">
     <h2 id="demo-settings-title" className="settings-heading">자동 LINK 한도</h2>
     <div className="settings-content">
-      <p className="settings-intro">나에게 맞는 혜택을 최대 N개까지.<br />한도를 바꿔 연결 결과를 확인해 보세요.</p>
+      <p className="settings-intro">맞춤 혜택을 자동으로 연결할 개수를 정해보세요.</p>
       <div className="settings-panel">
         <form onSubmit={event => { event.preventDefault(); apply(); }} noValidate>
           <label htmlFor="auto-link-limit">자동 연결 한도</label>
@@ -44,7 +44,7 @@ export function DemoTools({ state, dispatch, onReset, onViewBenefits, blocked = 
         </form>
       </div>
       <p id="settings-error" className="settings-error" role="alert">{error}</p>
-      <div className="settings-state" aria-label="현재 적용 상태"><span>연결 <strong>{autoCount}개</strong></span><span>한도 <strong>{state.limit}개</strong></span></div>
+      <div className="settings-state" aria-label="현재 적용 상태"><span>자동 연결 <strong>{autoCount}개</strong></span><span>한도 <strong>{state.limit}개</strong></span></div>
       {autoCount > state.limit && <p className="settings-help">기존 {autoCount}개 유지 · 추가 연결 없음</p>}
       {result && <div ref={resultView} className="settings-feedback" role="status" aria-live="polite"><strong>한도를 적용했어요</strong><p>{result.message}</p>{result.added.length > 0 && <p className="settings-added">{result.added.join(' · ')}</p>}<button className="settings-view-benefits" onClick={onViewBenefits}>{activeLinks(state).length ? '연결된 혜택 보기' : '앱 화면으로 돌아가기'} <span aria-hidden="true">↑</span></button></div>}
       <button className="settings-reset" onClick={() => resetDialog.current?.showModal()}>처음부터 체험</button>
