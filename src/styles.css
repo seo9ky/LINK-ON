@@ -237,7 +237,7 @@ input[type=checkbox]:active{box-shadow:0 0 0 5px #1677ff24}
 }
 @media(max-width:360px){
   .service-overview .plan-header{gap:8px}
-  
+
   .overview-content{padding:0 20px}
   .overview-hero h1{font-size:32px}
 }
