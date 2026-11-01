@@ -6,8 +6,13 @@ for (const width of [375,1366]) test(`슬라이드 확대 ${width}: 확대·이�
   await page.getByRole('button',{name:'기획서',exact:true}).click();
   const list=page.getByRole('region',{name:'기획서 슬라이드',exact:true});
   const target=page.locator('.plan-slide-open').nth(3);
-  await target.scrollIntoViewIfNeeded();await expect.poll(()=>target.evaluate(e=>e.parentElement!.getAnimations().length)).toBe(0);
-  const scroll=await list.evaluate(e=>e.scrollTop);await target.click();
+  await target.scrollIntoViewIfNeeded();
+  await target.evaluate(async e => {
+    await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame);
+    await Promise.all(e.parentElement!.getAnimations().map(a => a.finished.catch(() => {})));
+  });
+  const scroll=await list.evaluate(e=>e.scrollTop),box=(await target.boundingBox())!;
+  await page.mouse.click(box.x+box.width/2,box.y+box.height/2);
   const zoom=page.locator('.slide-zoom');await expect(zoom).toBeVisible();
   const area=page.getByRole('region',{name:'확대한 슬라이드',exact:true});await expect(area).toBeFocused();
   await expect(zoom.locator('output')).toHaveText('300%');
@@ -32,8 +37,13 @@ test.describe('모바일 터치', () => {
     const list=page.locator('.plan-scroll');
     for(let i=0;i<8;i++) {
       const target=page.locator('.plan-slide-open').nth(i);await target.scrollIntoViewIfNeeded();
-      await expect.poll(()=>target.evaluate(e=>e.parentElement!.getAnimations().length)).toBe(0);
-      const position=await list.evaluate(e=>e.scrollTop);await target.tap();
+      await target.evaluate(async e => {
+        await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame);
+        await Promise.all(e.parentElement!.getAnimations().map(a => a.finished.catch(() => {})));
+      });
+      const position=await list.evaluate(e=>e.scrollTop),targetBox=(await target.boundingBox())!;
+      // Tap the visible coordinates without the locator's automatic pre-tap scrolling.
+      await page.touchscreen.tap(targetBox.x+targetBox.width/2,targetBox.y+targetBox.height/2);
       const area=page.locator('.zoom-scroll'),zoom=page.locator('.slide-zoom');
       await zoom.getByRole('button',{name:'슬라이드 확대',exact:true}).tap();
       if(i===6) {
