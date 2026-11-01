@@ -3,7 +3,8 @@ import slides from './plan-slides.json';
 import { ScrollDocument } from './ScrollDocument';
 
 type Slide = typeof slides[number];
-function SlideZoom({ slide, onClose, returnFocus }: { slide: Slide; onClose: () => void; returnFocus: HTMLButtonElement | null }) {
+type ScrollPosition = { element: HTMLElement; top: number; left: number };
+function SlideZoom({ slide, onClose, returnFocus, returnScroll }: { slide: Slide; onClose: () => void; returnFocus: HTMLButtonElement | null; returnScroll: ScrollPosition | null }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const area = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(3);
@@ -11,8 +12,15 @@ function SlideZoom({ slide, onClose, returnFocus }: { slide: Slide; onClose: () 
     const element = dialog.current;
     element?.showModal();
     area.current?.focus({ preventScroll: true });
-    return () => { element?.close(); returnFocus?.focus({ preventScroll: true }); };
-  }, [returnFocus]);
+    return () => {
+      element?.close();
+      returnFocus?.focus({ preventScroll: true });
+      if (returnScroll) {
+        returnScroll.element.scrollTop = returnScroll.top;
+        returnScroll.element.scrollLeft = returnScroll.left;
+      }
+    };
+  }, [returnFocus, returnScroll]);
   const resize = (next: number) => {
     const element = area.current;
     if (!element) return;
@@ -38,13 +46,28 @@ function SlideZoom({ slide, onClose, returnFocus }: { slide: Slide; onClose: () 
 export function PlanViewer({ onClose }: { onClose: () => void }) {
   const [selected, setSelected] = useState<Slide | null>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
+  const scrollPosition = useRef<ScrollPosition | null>(null);
+  const pointerPosition = useRef<{ button: HTMLButtonElement; scroll: ScrollPosition | null } | null>(null);
+  const positionOf = (button: HTMLButtonElement): ScrollPosition | null => {
+    const element = button.closest<HTMLElement>('.plan-scroll');
+    return element ? { element, top: element.scrollTop, left: element.scrollLeft } : null;
+  };
   return <><ScrollDocument title="LINK ON 기획서" label="기획서 슬라이드" closeLabel="기획서 닫기" onClose={onClose}>
     {slides.map(slide => <figure key={slide.number} className="plan-slide" data-reveal>
       <figcaption><span>{slide.title}</span><span>{String(slide.number).padStart(2, '0')} / 08</span></figcaption>
-      <button className="plan-slide-open" aria-label={`${slide.number}장 ${slide.title} 확대 보기`} aria-haspopup="dialog" onClick={event => { opener.current = event.currentTarget; setSelected(slide); }}>
+      <button className="plan-slide-open" aria-label={`${slide.number}장 ${slide.title} 확대 보기`} aria-haspopup="dialog"
+        onPointerDown={event => { pointerPosition.current = { button: event.currentTarget, scroll: positionOf(event.currentTarget) }; }}
+        onPointerCancel={() => { pointerPosition.current = null; }}
+        onKeyDown={() => { pointerPosition.current = null; }}
+        onClick={event => {
+          opener.current = event.currentTarget;
+          scrollPosition.current = pointerPosition.current?.button === event.currentTarget ? pointerPosition.current.scroll : positionOf(event.currentTarget);
+          pointerPosition.current = null;
+          setSelected(slide);
+        }}>
         <img src={slide.src} width={slide.width} height={slide.height} alt={`${slide.number}장 · ${slide.title}`} loading="eager" decoding="async" />
       </button>
       <p className="sr-only">{slide.text}</p>
     </figure>)}
-  </ScrollDocument>{selected && <SlideZoom slide={selected} onClose={() => setSelected(null)} returnFocus={opener.current} />}</>;
+  </ScrollDocument>{selected && <SlideZoom slide={selected} onClose={() => setSelected(null)} returnFocus={opener.current} returnScroll={scrollPosition.current} />}</>;
 }

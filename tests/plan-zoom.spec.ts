@@ -24,3 +24,38 @@ for (const width of [375,1366]) test(`슬라이드 확대 ${width}: 확대·이�
   await page.keyboard.press('Enter');await expect(zoom).toBeVisible();await page.keyboard.press('Escape');await expect(zoom).toHaveCount(0);await expect(list).toBeVisible();
   await page.getByRole('button',{name:'기획서 닫기',exact:true}).click();await expect(page).toHaveURL(appUrl);expect(await page.evaluate(()=>localStorage.getItem('link-on-demo-v2'))).toBe(state);
 });
+
+test.describe('모바일 터치', () => {
+  test.use({ viewport: { width: 320, height: 740 }, isMobile: true, hasTouch: true });
+  test('스와이프와 반복 확대 후 8장 모두 보던 위치로 돌아간다', async ({ page }) => {
+    await page.goto('/');await page.getByRole('button',{name:'기획서',exact:true}).tap();
+    const list=page.locator('.plan-scroll');
+    for(let i=0;i<8;i++) {
+      const target=page.locator('.plan-slide-open').nth(i);await target.scrollIntoViewIfNeeded();
+      await expect.poll(()=>target.evaluate(e=>e.parentElement!.getAnimations().length)).toBe(0);
+      const position=await list.evaluate(e=>e.scrollTop);await target.tap();
+      const area=page.locator('.zoom-scroll'),zoom=page.locator('.slide-zoom');
+      await zoom.getByRole('button',{name:'슬라이드 확대',exact:true}).tap();
+      if(i===6) {
+        await area.evaluate(e=>{e.scrollLeft=0;e.scrollTop=0;});
+        const session=await page.context().newCDPSession(page),box=(await area.boundingBox())!;
+        const x=box.x+box.width*.65,y=box.y+box.height*.65;
+        for(const [dx,dy] of [[-140,0],[0,-100]]) {
+          await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});
+          for(let k=1;k<=8;k++) {await session.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+dx*k/8,y:y+dy*k/8}]});await page.waitForTimeout(16);}
+          await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+        }
+        await expect.poll(()=>area.evaluate(e=>e.scrollLeft)).toBeGreaterThan(20);
+        await expect.poll(()=>area.evaluate(e=>e.scrollTop)).toBeGreaterThan(10);await session.detach();
+      }
+      await zoom.getByRole('button',{name:'화면 맞춤'}).tap();
+      await zoom.getByRole('button',{name:'확대 보기 닫기'}).tap();
+      await expect(zoom).toHaveCount(0);await expect(target).toBeFocused();
+      await expect.poll(async()=>Math.abs((await list.evaluate(e=>e.scrollTop))-position)).toBeLessThan(2);
+    }
+    await page.getByRole('button',{name:'기획서 닫기'}).tap();
+    await page.locator('.demo-tools').scrollIntoViewIfNeeded();
+    expect(await page.locator('.demo-tools').evaluate(e=>e.scrollWidth<=e.clientWidth)).toBe(true);
+    await expect(page.locator('.settings-state')).toContainText('자동 연결 0개');
+  });
+});
