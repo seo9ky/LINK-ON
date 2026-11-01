@@ -1,7 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 
-export function ScrollDocument({ title, subtitle, label, closeLabel, className = '', onClose, children }: {
-  title: string; subtitle: string; label: string; closeLabel: string; className?: string; onClose: () => void; children: ReactNode;
+export function ScrollDocument({ title, label, closeLabel, className = '', onClose, children }: {
+  title: string; label: string; closeLabel: string; className?: string; onClose: () => void; children: ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const scrollArea = useRef<HTMLDivElement>(null);
@@ -41,7 +41,7 @@ export function ScrollDocument({ title, subtitle, label, closeLabel, className =
   }, []);
   return <dialog ref={dialog} className={`plan-viewer ${className}`} aria-label={title} onCancel={event => { event.preventDefault(); onClose(); }}>
     <header className="plan-header">
-      <div><h2>{title}</h2><p>{subtitle}</p></div>
+      <h2>{title}</h2>
       <button type="button" onClick={onClose} className="plan-close" aria-label={closeLabel}><span>닫기</span><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg></button>
     </header>
     <div ref={scrollArea} className="plan-scroll" role="region" aria-label={label} tabIndex={0}>{children}</div>
