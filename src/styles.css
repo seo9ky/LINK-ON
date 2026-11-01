@@ -437,3 +437,25 @@ input[type=checkbox]:active{box-shadow:0 0 0 5px #1677ff24}
   .phone:has(.content.main-state) .footer{gap:4px;padding-bottom:8px}
   .phone:has(.content.main-state) .quick-actions .button{font-size:13px;min-height:44px;height:44px}
 }
+
+/* Keep conditions visible independently of the retained connection state. */
+.benefit.retained .benefit-action.complete{gap:4px;font-size:14px;white-space:nowrap}
+@media(max-width:560px){.benefit.retained .benefit-action.complete{font-size:12px}}
+.quick-actions .button{min-width:0;flex:1;padding-inline:8px;white-space:nowrap}
+.result-retry-condition{display:block;margin-top:4px}
+@media(max-width:560px){
+  .results-screen .payment-entry{padding-bottom:12px}
+  .results-screen .result-card h3{font-size:21px;line-height:29px}
+  .results-screen .details{gap:8px}
+  .phone:has(.results-screen) .footer-note{font-size:12px;line-height:18px}
+}
+@media(max-width:360px){
+  .brand-signature{--brand-width:200px;margin-block:4px;gap:4px}
+  .phone{height:min(956px,calc(100dvh - 132px))}
+  .phone:has(.main-overview) .navigation{margin-bottom:8px}
+  .content.main-off .off-explanation p{font-size:13px;line-height:20px}
+  .content.main-off>.benefit{grid-template-columns:36px minmax(0,1fr) 68px;column-gap:6px}
+  .content.main-off>.benefit .benefit-body{grid-template-columns:36px minmax(0,1fr);gap:6px}
+  .content.main-off>.benefit .merchant-frame,.content.main-off>.benefit .merchant{width:36px;height:36px}
+  .content.main-off>.benefit .benefit-action{width:68px}
+}

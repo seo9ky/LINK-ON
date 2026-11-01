@@ -30,15 +30,15 @@ function Merchant({ id, large = false }: { id: MerchantId; large?: boolean }) {
 function Benefit({ offer, mode, onClick, onAction = onClick, retained = false, unavailable = '', used = '' }: { used?: string; unavailable?: string; offer: Campaign; mode: 'link' | 'complete' | 'detail' | 'exclude'; onClick: () => void; onAction?: () => void; retained?: boolean }) {
   const id = offer.merchant;
   const item = merchants[id];
-  const actionLabel = used && mode !== 'exclude' ? '이용 결과 보기' : mode === 'link' ? '혜택 링크' : mode === 'exclude' ? '혜택 제외' : mode === 'complete' ? '연결 완료 · 상세 보기' : '상세 보기';
-  return <div className="benefit">
+  const actionLabel = used && mode !== 'exclude' ? '이용 결과 보기' : mode === 'link' ? '혜택 링크' : mode === 'exclude' ? '혜택 제외' : mode === 'complete' ? retained ? '연결 유지 · 상세 보기' : '연결 완료 · 상세 보기' : '상세 보기';
+  return <div className={`benefit${retained ? ' retained' : ''}`}>
     <button className="benefit-body" onClick={onClick} aria-label={`${item.name} 혜택 상세`}>
-    <Merchant id={id} /><span className="benefit-info"><span className="merchant-name">{item.name}</span><strong>{item.discount}</strong><span className="condition">{used && <span className="usage-badge">{used}</span>}{retained ? '기존 연결 유지' : `${item.minimum} 이상 결제`} · {offer.end.slice(5).replace('-', '.')}까지</span></span>
+    <Merchant id={id} /><span className="benefit-info"><span className="merchant-name">{item.name}</span><strong>{item.discount}</strong><span className="condition">{used && <span className="usage-badge">{used}</span>}{`${item.minimum} 이상 결제`} · {offer.end.slice(5).replace('-', '.')}까지</span></span>
     </button>
     <button className={`benefit-action ${used && mode !== 'exclude' ? 'detail' : unavailable ? 'complete' : mode}`} disabled={!!unavailable && !used} onClick={onAction} aria-label={`${item.name} ${used ? actionLabel : unavailable || actionLabel}`}>
       {used && mode !== 'exclude' ? <><span>결과</span><Icon name="right.svg" size={16} /></> : <>
         {unavailable || null}{!unavailable && mode === 'link' && <><Icon name="plus.svg" size={16} /><span>링크</span></>}
-        {!unavailable && mode === 'complete' && <><Icon name="check-complete.svg" size={16} /><span>완료</span></>}
+        {!unavailable && mode === 'complete' && <><Icon name="check-complete.svg" size={16} /><span>{retained ? '연결 유지' : '완료'}</span></>}
         {!unavailable && mode === 'detail' && <><span>상세</span><Icon name="right.svg" size={16} /></>}
         {mode === 'exclude' && '제외'}
       </>}
@@ -169,8 +169,8 @@ function App() {
     footer = <><Button onClick={() => { setConsent(false); go('/consent'); }}>LINK ON 시작하기</Button><p className="footer-note">서비스 체험용 화면 · 실제 결제 없음</p></>;
   } else if (isMain && !state.enabled) {
     contentClass = 'main-state main-off';
-    content = <>{mainTop}<section className="off-explanation"><div className="off-heading"><h2>자동 연결을 껐어요</h2><button className="text-action" aria-label="LINK ON 다시 켜기" onClick={() => dispatch({ type: 'ENABLE' })}>다시 켜기</button></div><p className="muted">새 혜택의 자동 연결은 멈췄어요.<br />이미 연결된 혜택은 계속 이용할 수 있어요.</p></section><h3>연결된 혜택</h3>{autoBenefits('complete')}{manualOffers.filter(c => connection(state, c.id)).map(manualRow)}{count === 0 && <Note>현재 연결된 혜택이 없어요. 다른 혜택은 직접 고를 수 있어요.</Note>}</>;
-    footer = <>{canTryPayment && <Button onClick={() => experience()}>결제 체험하기</Button>}<div className="quick-actions"><Button secondary onClick={() => go('/manual')}>직접 고르는 혜택</Button><Button secondary onClick={results}>이용 결과</Button></div></>;
+    content = <>{mainTop}<section className="off-explanation"><div className="off-heading"><h2>자동 연결을 껐어요</h2><button className="text-action" aria-label="LINK ON 다시 켜기" onClick={() => dispatch({ type: 'ENABLE' })}>다시 켜기</button></div><p className="muted">기존 혜택은 계속 이용할 수 있어요.</p></section><h3>연결된 혜택</h3>{autoBenefits('complete')}{manualOffers.filter(c => connection(state, c.id)).map(manualRow)}{count === 0 && <Note>현재 연결된 혜택이 없어요. 다른 혜택은 직접 고를 수 있어요.</Note>}</>;
+    footer = <>{canTryPayment && <Button onClick={() => experience()}>결제 체험하기</Button>}<div className="quick-actions"><Button secondary onClick={() => go('/manual')}>혜택 직접 고르기</Button><Button secondary onClick={results}>이용 결과</Button></div></>;
   } else if (isMain && !auto.length) {
     contentClass = 'main-state';
     content = <>{mainTop}<div className="status-circle"><Icon name="gift-large.svg" size={52} /></div><h2>지금은 자동으로 연결할<br />혜택이 없어요</h2><p className="muted">{emptyReason(state)}</p><Note>LINK ON은 켜져 있어요.<br />적합한 혜택만 고객별 한도 내에서 연결해요.</Note><h3>직접 고르는 혜택</h3>{manualList}</>;
@@ -226,11 +226,11 @@ function App() {
     content = <><div className="result-tabs" role="tablist" aria-label="혜택 적용 상태">{[['done', '적용 완료'], ['pending', '확인 중'], ['failed', '미적용']].map(([value, text]) => <button key={value} role="tab" aria-selected={tab === value} className={tab === value ? 'selected' : ''} onClick={() => go(`/results/${value}`, true)}>{text}</button>)}</div>
       {!state.payments.length ? <><div className="status-circle"><Icon name="gift-large.svg" size={52} /></div><h2>아직 이용 내역이 없어요</h2><p className="muted">혜택을 연결한 뒤 조건에 맞게 결제하면<br />이곳에서 적용 결과를 확인할 수 있어요.</p>{canTryPayment && <Button secondary onClick={() => experience()}>결제 체험하기</Button>}</> : !list.length ? <Note>{tab === 'pending' ? '확인 중인 결제가 없어요.' : tab === 'failed' ? '미적용된 결제가 없어요.' : '아직 적용 완료된 혜택이 없어요.'} 다른 상태의 내역도 확인해 보세요.</Note> : list.map(p => {
         const c = campaign(p.campaignId)!; const pending = p.status === 'pending'; const failed = p.status === 'failed';
-        return <section className="payment-entry" key={p.id}><div className="card result-card"><div className="result-icons"><Merchant id={c.merchant} /><div className="result-purchase"><strong>{merchants[c.merchant].name}</strong><span>{money(p.amount)} 결제</span></div><Icon name={pending ? 'clock.svg' : failed ? 'info.svg' : 'check-result.svg'} size={32} /></div><h3>{pending ? '체험 결제가 접수됐어요' : failed ? '이번 결제에는 할인이 적용되지 않았어요' : `${money(p.discount)} 할인 적용`}</h3><p className="muted">{pending ? '아래 버튼을 눌러 할인 결과를 확인하세요.' : failed ? p.reason : `${p.mode === 'auto' ? '자동' : '직접'} LINK로 챙긴 혜택이에요.`}</p></div>{pending && p.id !== firstPending?.id && <Button onClick={() => settle(p)}>이 결제의 할인 결과 확인</Button>}{failed && inPeriod(c, state.date) && !usageLabel(state, c.id) && <Button secondary onClick={() => connection(state, c.id) ? experience(c.id) : openDetail(c.id)}>{connection(state, c.id) ? '금액 바꿔 다시 체험하기' : '혜택 연결하러 가기'}</Button>}<Details rows={[
+        return <section className="payment-entry" key={p.id}><div className="card result-card"><div className="result-icons"><Merchant id={c.merchant} /><div className="result-purchase"><strong>{merchants[c.merchant].name}</strong><span>{money(p.amount)} 결제</span></div><Icon name={pending ? 'clock.svg' : failed ? 'info.svg' : 'check-result.svg'} size={32} /></div><h3>{pending ? '체험 결제가 접수됐어요' : failed ? '할인이 적용되지 않았어요' : `${money(p.discount)} 할인 적용`}</h3><p className="muted">{pending ? '아래 버튼을 눌러 할인 결과를 확인하세요.' : failed ? <>{p.reason}{p.reason === '최소 결제금액을 충족하지 않았어요.' && <span className="result-retry-condition">{money(c.minimum)} 이상 결제 시 {money(c.discount)} 할인돼요.</span>}</> : `${p.mode === 'auto' ? '자동' : '직접'} LINK로 챙긴 혜택이에요.`}</p></div>{pending && p.id !== firstPending?.id && <Button onClick={() => settle(p)}>이 결제의 할인 결과 확인</Button>}{failed && inPeriod(c, state.date) && !usageLabel(state, c.id) && <Button secondary onClick={() => connection(state, c.id) ? experience(c.id) : openDetail(c.id)}>{connection(state, c.id) ? '금액 바꿔 다시 체험하기' : '혜택 연결하러 가기'}</Button>}<Details rows={[
           ['체험일', p.date.replaceAll('-', '.')], ['연결 방식', p.mode ? p.mode === 'auto' ? '자동 LINK' : '직접 LINK' : '연결 없음'],
         ] } /><button className="text-action left" onClick={() => openDetail(c.id)}>행사 혜택 상세 ›</button></section>;
-      })}<Note>결제 체험 내역이에요. 실제 결제는 발생하지 않아요.</Note></>;
-    footer = <>{firstPending && <Button onClick={() => settle(firstPending)}>할인 결과 확인하기</Button>}<Button secondary onClick={home}>LINK 메인으로</Button></>;
+      })}</>;
+    footer = <>{firstPending && <Button onClick={() => settle(firstPending)}>할인 결과 확인하기</Button>}<Button secondary onClick={home}>LINK 메인으로</Button><p className="footer-note">결제 체험 · 실제 결제 없음</p></>;
   } else {
     content = <><h2>현재 상태에서 볼 수 없는 화면이에요</h2><p className="muted">행사와 연결 상태를 다시 확인해 주세요.</p></>;
     footer = <Button onClick={home}>LINK 메인으로</Button>;

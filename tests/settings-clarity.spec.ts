@@ -37,7 +37,7 @@ for (const width of [375, 320]) test(`모바일 ${width}: 결과에서 앱으로
 test('미동의 결과에서 앱으로 돌아가도 자동 동의하거나 켜지지 않는다', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 }); await page.goto('/');
   await page.getByRole('button', { name: '한도 적용하기' }).click();
-  await expect(page.getByRole('status')).toContainText('동의하고 LINK ON을 시작');
+  await expect(page.getByRole('status')).toContainText('동의하고 시작하면 이 한도 안에서');
   await page.getByRole('button', { name: '앱 화면으로 돌아가기' }).click();
   await expect(page.getByRole('button', { name: 'LINK ON 시작하기', exact: true })).toBeInViewport();
   expect((await saved(page)).optedIn).toBe(false);

@@ -11,14 +11,14 @@ test('입력값을 바로 적용하고 추가 연결·한도 축소·추가 없�
  await expect(page.getByRole('status')).toContainText('3개 혜택을 추가 연결');
  expect((await saved(page)).limit).toBe(5);
  await page.getByLabel('자동 연결 한도',{exact:true}).fill('1');await page.getByRole('button',{name:'한도 적용하기'}).click();
- await expect(page.getByRole('status')).toContainText('새 한도보다 많아');
+ await expect(page.getByRole('status')).toContainText('기존 5개는 유지하고, 새로 연결할 때 한도 1개를 적용해요.');
  await expect(page.locator('.settings-content')).toContainText('기존 5개 유지 · 추가 연결 없음');
  await page.getByRole('button',{name:'한도 적용하기'}).click();await expect(page.getByRole('status')).not.toContainText('추가 연결했어요');
 });
 
 test('미동의 조건 적용은 자동 연결하지 않고 잘못된 한도는 적용하지 않는다',async({page})=>{
  await page.goto('/');await page.getByLabel('자동 연결 한도',{exact:true}).fill('4');await page.getByRole('button',{name:'한도 적용하기'}).click();
- await expect(page.getByRole('status')).toContainText('동의하고 LINK ON을 시작');expect((await saved(page)).connections).toHaveLength(0);
+ await expect(page.getByRole('status')).toContainText('동의하고 시작하면 이 한도 안에서');expect((await saved(page)).connections).toHaveLength(0);
  for(const value of ['', '1.5', '-1', '21']){
   await page.getByLabel('자동 연결 한도',{exact:true}).fill(value);await page.getByRole('button',{name:'한도 적용하기'}).click();await expect(page.locator('#settings-error')).toContainText('0~20');expect((await saved(page)).limit).toBe(4);
  }
