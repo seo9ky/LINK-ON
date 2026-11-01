@@ -13,7 +13,7 @@ import './styles.css';
 
 const asset = (name: string) => `/assets/${name}`;
 function Icon({ name, size = 24 }: { name: string; size?: number }) {
-  return <span className="asset-icon" style={{ width: size, height: size }} aria-hidden="true"><img src={asset(name)} alt="" /></span>;
+  return <span className="asset-icon" style={{ width: size, height: size }} aria-hidden="true"><img key={name} src={asset(name)} alt="" /></span>;
 }
 function StatusBarIPhone() {
   return <div className="status-bar" aria-hidden="true"><span className="status-time">9:41</span><span className="island" /><div className="status-levels"><span className="cellular"><i /><i /><i /><i /></span><img src={asset('wifi.svg')} alt="" /><img src={asset('battery.svg')} alt="" /></div></div>;
@@ -168,13 +168,13 @@ function App() {
     content = <>{mainTop}<section className="intro"><h2>맞춤 혜택은 자동으로,<br />나머지는 직접 골라요.</h2><ol className="journey" aria-label="체험 순서"><li><b>1</b>관심 업종</li><li><b>2</b>혜택 연결</li><li><b>3</b>결제 체험</li></ol></section>{count > 0 || state.payments.length ? <><button className="text-action left" onClick={results}>혜택 이용 결과 ›</button>{canTryPayment && <Button secondary onClick={() => experience()}>결제 체험하기</Button>}</> : null}<div className="catalog-intro"><h3>직접 고르는 혜택</h3></div>{manualList}</>;
     footer = <><Button onClick={() => { setConsent(false); go('/consent'); }}>LINK ON 시작하기</Button><p className="footer-note">서비스 체험용 화면 · 실제 결제 없음</p></>;
   } else if (isMain && !state.enabled) {
-    contentClass = 'main-state';
-    content = <>{mainTop}<h2>자동 연결을 껐어요</h2><p className="muted">새 혜택은 자동 연결되지 않아요.<br />이미 연결된 혜택은 만료일까지 이용할 수 있어요.</p><h3>연결된 혜택</h3>{autoBenefits('complete')}{manualOffers.filter(c => connection(state, c.id)).map(manualRow)}{count === 0 && <Note>현재 연결된 혜택이 없어요. 다른 혜택은 직접 고를 수 있어요.</Note>}</>;
-    footer = <><div className="quick-actions"><Button secondary onClick={() => go('/manual')}>직접 고르는 혜택</Button><Button secondary onClick={results}>이용 결과</Button></div><Button onClick={() => dispatch({ type: 'ENABLE' })}>LINK ON 다시 켜기</Button></>;
+    contentClass = 'main-state main-off';
+    content = <>{mainTop}<section className="off-explanation"><div className="off-heading"><h2>자동 연결을 껐어요</h2><button className="text-action" aria-label="LINK ON 다시 켜기" onClick={() => dispatch({ type: 'ENABLE' })}>다시 켜기</button></div><p className="muted">새 혜택의 자동 연결은 멈췄어요.<br />이미 연결된 혜택은 계속 이용할 수 있어요.</p></section><h3>연결된 혜택</h3>{autoBenefits('complete')}{manualOffers.filter(c => connection(state, c.id)).map(manualRow)}{count === 0 && <Note>현재 연결된 혜택이 없어요. 다른 혜택은 직접 고를 수 있어요.</Note>}</>;
+    footer = <>{canTryPayment && <Button onClick={() => experience()}>결제 체험하기</Button>}<div className="quick-actions"><Button secondary onClick={() => go('/manual')}>직접 고르는 혜택</Button><Button secondary onClick={results}>이용 결과</Button></div></>;
   } else if (isMain && !auto.length) {
     contentClass = 'main-state';
     content = <>{mainTop}<div className="status-circle"><Icon name="gift-large.svg" size={52} /></div><h2>지금은 자동으로 연결할<br />혜택이 없어요</h2><p className="muted">{emptyReason(state)}</p><Note>LINK ON은 켜져 있어요.<br />적합한 혜택만 고객별 한도 내에서 연결해요.</Note><h3>직접 고르는 혜택</h3>{manualList}</>;
-    footer = <><div className="quick-actions"><Button secondary onClick={() => go('/manage')}>자동 LINK 관리</Button><Button secondary onClick={results}>이용 결과</Button></div><Button secondary onClick={openInterests}>관심 업종 확인하기</Button></>;
+    footer = <>{canTryPayment && <Button onClick={() => experience()}>결제 체험하기</Button>}<div className="quick-actions"><Button secondary onClick={() => go('/manage')}>자동 LINK 관리</Button><Button secondary onClick={results}>이용 결과</Button></div><Button secondary onClick={openInterests}>관심 업종 확인하기</Button></>;
   } else if (isMain) {
     contentClass = 'main-on';
     content = <>{mainTop}<div className="active-banner"><div><LinkLogo size={128} /><p className="small muted">고객님께 맞는 혜택 {auto.length}개를 연결했어요.</p></div><Toggle checked={state.enabled} onClick={toggle} /></div><div className="section-heading"><h3>자동으로 연결된 혜택</h3><button className="text-action inline-nav" onClick={() => go('/manage')}><span>관리</span><Icon name="right.svg" size={16} /></button></div>{autoBenefits()}<h3>직접 고르는 혜택</h3>{manualList}</>;
@@ -185,7 +185,7 @@ function App() {
     footer = <>{!help && <label className="consent"><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} /><span>[필수] 자동 LINK 이용에 동의합니다.</span></label>}<Button disabled={!help && !consent} onClick={help ? back : () => { setDraft([...state.interests]); go('/interests'); }}>{help ? '확인' : '동의하고 시작하기'}</Button></>;
   } else if (path === '/interests') {
     title = '관심 업종 설정'; contentClass = 'interests-screen';
-    content = <><h2>혜택을 받고 싶은<br />업종을 골라 주세요</h2><div className="selection-summary"><span>여러 개 선택할 수 있어요.</span><strong aria-live="polite">{draft.length}개 선택</strong></div>{!state.optedIn && <p className="selection-hint">체험용으로 2개 업종을 선택해 두었어요.</p>}<div className="industry-grid">{industries.map(name => <button key={name} aria-pressed={draft.includes(name)} className={`industry ${draft.includes(name) ? 'selected' : ''}`} onClick={() => setDraft(values => values.includes(name) ? values.filter(v => v !== name) : [...values, name])}>{name}</button>)}</div><p className="small muted">{state.optedIn ? '변경한 업종은 다음 혜택 선정부터 반영돼요.' : '관심 업종과 평소 소비 업종을 함께 참고해요.'}<br />선택하지 않으면 평소 소비 업종만 참고해요.</p></>;
+    content = <><h2>혜택을 받고 싶은<br />업종을 골라 주세요</h2><div className="selection-summary"><span>여러 개 선택할 수 있어요.</span><strong aria-live="polite">{draft.length}개 선택</strong></div>{!state.optedIn && <p className="selection-hint">체험용으로 2개 업종을 선택해 두었어요.</p>}<div className="industry-grid">{industries.map(name => <button key={name} aria-pressed={draft.includes(name)} className={`industry ${draft.includes(name) ? 'selected' : ''}`} onClick={() => setDraft(values => values.includes(name) ? values.filter(v => v !== name) : [...values, name])}>{name}</button>)}</div><p className="small muted">{state.optedIn ? '변경한 업종은 다음 혜택 선정부터 반영돼요.' : '관심 업종과 체험용 소비 패턴을 함께 참고해요.'}<br />선택하지 않으면 체험용 소비 패턴만 참고해요.</p></>;
     footer = <Button disabled={!state.optedIn && !consent} onClick={() => { dispatch({ type: 'SAVE_INTERESTS', values: draft, activate: !state.optedIn && consent }); home(); }}>저장하고 혜택 확인하기</Button>;
   } else if (path.startsWith('/benefit/') && detailOffer) {
     title = '혜택 상세'; contentClass = 'detail';
@@ -227,7 +227,7 @@ function App() {
       {!state.payments.length ? <><div className="status-circle"><Icon name="gift-large.svg" size={52} /></div><h2>아직 이용 내역이 없어요</h2><p className="muted">혜택을 연결한 뒤 조건에 맞게 결제하면<br />이곳에서 적용 결과를 확인할 수 있어요.</p>{canTryPayment && <Button secondary onClick={() => experience()}>결제 체험하기</Button>}</> : !list.length ? <Note>{tab === 'pending' ? '확인 중인 결제가 없어요.' : tab === 'failed' ? '미적용된 결제가 없어요.' : '아직 적용 완료된 혜택이 없어요.'} 다른 상태의 내역도 확인해 보세요.</Note> : list.map(p => {
         const c = campaign(p.campaignId)!; const pending = p.status === 'pending'; const failed = p.status === 'failed';
         return <section className="payment-entry" key={p.id}><div className="card result-card"><div className="result-icons"><Merchant id={c.merchant} /><div className="result-purchase"><strong>{merchants[c.merchant].name}</strong><span>{money(p.amount)} 결제</span></div><Icon name={pending ? 'clock.svg' : failed ? 'info.svg' : 'check-result.svg'} size={32} /></div><h3>{pending ? '체험 결제가 접수됐어요' : failed ? '이번 결제에는 할인이 적용되지 않았어요' : `${money(p.discount)} 할인 적용`}</h3><p className="muted">{pending ? '아래 버튼을 눌러 할인 결과를 확인하세요.' : failed ? p.reason : `${p.mode === 'auto' ? '자동' : '직접'} LINK로 챙긴 혜택이에요.`}</p></div>{pending && p.id !== firstPending?.id && <Button onClick={() => settle(p)}>이 결제의 할인 결과 확인</Button>}{failed && inPeriod(c, state.date) && !usageLabel(state, c.id) && <Button secondary onClick={() => connection(state, c.id) ? experience(c.id) : openDetail(c.id)}>{connection(state, c.id) ? '금액 바꿔 다시 체험하기' : '혜택 연결하러 가기'}</Button>}<Details rows={[
-          ['이용일', p.date.replaceAll('-', '.')], ['연결 방식', p.mode ? p.mode === 'auto' ? '자동 LINK' : '직접 LINK' : '연결 없음'],
+          ['체험일', p.date.replaceAll('-', '.')], ['연결 방식', p.mode ? p.mode === 'auto' ? '자동 LINK' : '직접 LINK' : '연결 없음'],
         ] } /><button className="text-action left" onClick={() => openDetail(c.id)}>행사 혜택 상세 ›</button></section>;
       })}<Note>결제 체험 내역이에요. 실제 결제는 발생하지 않아요.</Note></>;
     footer = <>{firstPending && <Button onClick={() => settle(firstPending)}>할인 결과 확인하기</Button>}<Button secondary onClick={home}>LINK 메인으로</Button></>;

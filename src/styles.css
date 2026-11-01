@@ -338,7 +338,7 @@ input[type=checkbox]:active{box-shadow:0 0 0 5px #1677ff24}
   .results-screen .details{gap:10px;font-size:14px;line-height:22px;padding:6px 0}
 }
 @media(min-width:960px) and (orientation:landscape){
-  .phone .small,.phone .condition,.phone .merchant-name,.phone .note,.phone .selection-hint{font-size:17px;line-height:26px}
+  .phone .small,.phone .condition,.phone .merchant-name,.phone .note,.phone .selection-hint{font-size:19px;line-height:28px}
   .phone .payment-form label,.phone .payment-form input,.phone .payment-form select{font-size:18px;line-height:28px}
   .phone .payment-condition strong,.phone .details,.phone .selection-summary{font-size:18px;line-height:28px}
   .phone .result-purchase strong{font-size:20px;line-height:30px}
@@ -399,3 +399,32 @@ input[type=checkbox]:active{box-shadow:0 0 0 5px #1677ff24}
 @media(hover:hover) and (pointer:fine){.zoom-toolbar button:hover:not(:disabled){background:#dce8ff}}
 @media(max-width:560px){.slide-zoom{width:100%;height:100dvh;margin:0;border:0;border-radius:0}.slide-zoom h2{font-size:16px;gap:10px}.zoom-toolbar{gap:6px}}
 .plan-slide-open,.slide-zoom button{touch-action:manipulation}
+
+/* Existing linked benefits remain usable when automatic selection is off. */
+.off-explanation{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.off-heading{display:flex;width:100%;align-items:center;justify-content:space-between;gap:8px}
+.off-heading h2{font-size:23px;line-height:32px}
+.off-heading .text-action{min-height:44px;padding:6px 8px;margin-right:-8px;border-radius:12px;font-size:16px;white-space:nowrap}
+@media(min-width:960px) and (orientation:landscape){
+  .phone .summary span,.phone .footer-note{font-size:18px;line-height:26px}
+  .phone .benefit-info{gap:2px}
+  .phone .off-explanation p{font-size:19px;line-height:28px}
+}
+@media(max-width:560px){
+  .brand-signature{margin-top:10px;margin-bottom:10px;gap:6px}
+  .phone{height:min(956px,calc(100dvh - 168px))}
+  .phone .navigation{margin-top:2px}
+  .content.main-off{gap:6px}
+  .off-explanation{gap:4px}
+  .off-heading h2{font-size:20px;line-height:28px}
+  .off-heading .text-action{font-size:14px}
+  .content.main-off>.benefit{min-height:82px;padding:4px 0}
+  .content.main-off>.benefit .benefit-body{min-height:74px}
+  .content.main-off .benefit-info{gap:2px}
+  .content.main-off .merchant-name{font-size:13px;line-height:20px}
+  .content.main-off .condition{font-size:12px;line-height:18px}
+  .content.main-off .benefit-info strong{font-size:18px;line-height:24px}
+  .off-explanation p{font-size:14px;line-height:22px}
+  .phone:has(.content.main-state) .footer{gap:4px;padding-bottom:8px}
+  .phone:has(.content.main-state) .quick-actions .button{font-size:13px;min-height:44px;height:44px}
+}
